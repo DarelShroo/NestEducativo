@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NestJS - Plataforma Educativa</title>
+  <meta name="description"
+    content="Aprende NestJS y TypeScript con ejercicios prácticos validados en tiempo real">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&family=Fira+Code:wght@400;500&display=swap"
+    rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <div class="header-content">
+        <h1 id="logo-btn" class="logo" style="cursor: pointer;">
+          <span class="logo-icon">🐱</span>
+          <span class="logo-text">NestJS Educativo</span>
+        </h1>
+        <nav class="nav">
+          <button id="nav-home-btn" class="btn-text">🏠 Inicio</button>
+          <div id="status-indicator" class="status-indicator" title="Estado del servidor">
+            <span class="status-dot"></span>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main">
+    <div class="container">
+      <!-- Welcome Screen -->
+      <section id="welcome-section" class="welcome-section">
+        <div class="welcome-content">
+          <h2 class="welcome-title">Aprende TypeScript y NestJS</h2>
+          <p class="welcome-subtitle">Ejercicios progresivos interactivos</p>
+
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">📚</div>
+              <h3>Aprende Paso a Paso</h3>
+              <p>Niveles progresivos con teoría y ejemplos completos</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">⚡</div>
+              <h3>Validación en Tiempo Real</h3>
+              <p>Tus scripts se ejecutan y validan paso a paso</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">🎯</div>
+              <h3>100 Ejercicios Prácticos</h3>
+              <p>Desde básico hasta avanzado: macros, UDFs, optimización</p>
+            </div>
+          </div>
+
+          <h3 class="levels-title">Rutas de Aprendizaje</h3>
+          <div class="levels-grid">
+            <div class="level-card" data-level="1">
+              <div class="level-card-bg"></div>
+              <div class="level-card-icon">🚀</div>
+              <div class="level-card-content">
+                <h3>Nivel 1: TypeScript Intro</h3>
+                <p>Bases de TypeScript para NestJS: Tipos, Clases, Promesas, Inyección de Dependencias y Decoradores.</p>
+                <span class="btn-primary" style="margin-top: 1rem; width: 100%;">Comenzar Nivel</span>
+              </div>
+            </div>
+            
+            <div class="level-card disabled" data-level="2">
+              <div class="level-card-bg"></div>
+              <div class="level-card-icon">🧱</div>
+              <div class="level-card-content">
+                <h3>Nivel 2: NestJS Básico</h3>
+                <p>Controladores, Servicios, Módulos y Arquitectura inicial del backend.</p>
+                <span class="btn-secondary" style="margin-top: 1rem; width: 100%;">Próximamente</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Level Info Section -->
+      <section id="nivel-info-section" class="nivel-info-section hidden">
+        <div class="nivel-info-header">
+          <button id="back-to-welcome" class="btn-secondary">← Volver</button>
+          <h2 id="nivel-title" class="nivel-title"></h2>
+        </div>
+        <div id="nivel-readme" class="nivel-readme markdown-body"></div>
+        <div class="nivel-actions">
+          <button id="view-exercises-btn" class="btn-primary">Ver Ejercicios</button>
+        </div>
+      </section>
+
+      <!-- Exercise List Section -->
+      <section id="ejercicios-lista-section" class="ejercicios-lista-section hidden">
+        <div class="ejercicios-header">
+          <button id="back-to-info" class="btn-secondary">← Volver a Teoría</button>
+          <h2 id="ejercicios-title">Ejercicios</h2>
+        </div>
+        <div id="ejercicios-grid" class="ejercicios-grid"></div>
+      </section>
+
+      <!-- Exercise Detail Section -->
+      <section id="ejercicio-detalle-section" class="ejercicio-detalle-section hidden">
+        <div class="ejercicio-header">
+          <button id="back-to-list" class="btn-secondary">← Volver a Lista</button>
+          <div class="ejercicio-title-group">
+            <h2 id="ejercicio-titulo"></h2>
+            <div class="ejercicio-meta">
+              <span id="ejercicio-dificultad" class="badge"></span>
+              <span id="ejercicio-concepts" class="concepts"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ejercicio-content">
+          <div class="ejercicio-descripcion-card">
+            <h3>Descripción</h3>
+            <div id="ejercicio-descripcion" class="ejercicio-descripcion"></div>
+          </div>
+
+          <div class="code-section">
+            <div class="code-header">
+              <h3>Tu Solución</h3>
+              <div class="code-actions">
+                <button id="show-solution-btn" class="btn-text" title="Ver solución de referencia">
+                  <span>💡</span> Ver Solución
+                </button>
+                <button id="reset-code-btn" class="btn-text" title="Reiniciar al script inicial">
+                  <span>↻</span> Reiniciar
+                </button>
+              </div>
+            </div>
+            <div class="editor-wrapper">
+              <textarea id="code-editor" class="code-editor" spellcheck="false"
+                placeholder="Escribe tu código TypeScript/NestJS aquí..."></textarea>
+            </div>
+          </div>
+
+          <div id="hints-section" class="hints-section">
+            <button id="toggle-hints-btn" class="btn-text">
+              <span>💭</span> <span id="hints-btn-text">Mostrar Pistas</span>
+            </button>
+            <ul id="hints-list" class="hints-list hidden"></ul>
+          </div>
+
+
+          <div class="action-section">
+            <button id="validar-btn" class="btn-primary btn-large">
+              <span class="btn-icon">▶</span>
+              Validar Script
+            </button>
+            <div id="loading-indicator" class="loading-indicator hidden">
+              <div class="spinner"></div>
+              <span>Ejecutando código...</span>
+            </div>
+          </div>
+
+          <div id="resultado-panel" class="resultado-panel hidden">
+            <div class="resultado-header">
+              <div id="resultado-status" class="resultado-status"></div>
+              <button id="close-result-btn" class="btn-icon-only" title="Cerrar">×</button>
+            </div>
+
+            <div id="resultado-output-section" class="resultado-section">
+              <h4>Resultado</h4>
+              <pre id="resultado-output" class="code-output"></pre>
+            </div>
+
+            <div id="resultado-errores-section" class="resultado-section hidden">
+              <h4>Errores</h4>
+              <pre id="resultado-errores" class="code-error"></pre>
+            </div>
+
+            <div id="resultado-sugerencias-section" class="resultado-section hidden">
+              <h4>💡 Sugerencias</h4>
+              <ul id="resultado-sugerencias" class="sugerencias-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Progress Tracker Sidebar -->
+  <aside id="progreso-sidebar" class="progreso-sidebar hidden">
+    <div class="progreso-header">
+      <h3>Tu Progreso</h3>
+      <button id="toggle-progreso-btn" class="btn-icon-only">−</button>
+    </div>
+    <div id="progreso-content" class="progreso-content">
+      <div class="progreso-stats">
+        <div class="stat-item">
+          <span class="stat-label">Completados</span>
+          <span id="stat-completed" class="stat-value">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total</span>
+          <span id="stat-total" class="stat-value">0</span>
+        </div>
+      </div>
+      <div class="progreso-bar-container">
+        <div id="progreso-bar" class="progreso-bar"></div>
+      </div>
+      <div id="progreso-list" class="progreso-list"></div>
+    </div>
+  </aside>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>Plataforma Educativa de NestJS | Recursos:
+        <a href="https://docs.nestjs.com/" target="_blank" rel="noopener">Docs Oficiales</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/javascript-hint.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/anyword-hint.min.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/editor.js"></script>
+  <script src="js/app.js"></script>
+</body>
+
+</html>
