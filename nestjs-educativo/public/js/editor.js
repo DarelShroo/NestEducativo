@@ -34,7 +34,41 @@ class CodeEditor {
             const jsHints = CodeMirror.hint.javascript(cm) || { list: [] };
             let list = jsHints.list.map(item => typeof item === 'string' ? item : item.text);
             const nestMatches = nestjsKeywords.filter(k => k.toLowerCase().startsWith(word.toLowerCase()));
-            for (let match of nestMatches) { if (!list.includes(match)) list.unshift(match); }
+            for (let match of nestMatches) {
+                if (!list.includes(match) && !list.some(l => typeof l === 'object' && l.text === match)) {
+                    list.unshift({
+                        text: match,
+                        displayText: match + " (NestJS)",
+                        hint: function(cm, data, completion) {
+                            cm.replaceRange(completion.text, data.from, data.to);
+                            if (match === '@nestjs/common') return;
+                            
+                            const content = cm.getValue();
+                            const importRegex = /import\s+\{([^}]+)\}\s+from\s+['"]@nestjs\/common['"]/;
+                            const matchImport = content.match(importRegex);
+                            
+                            if (matchImport) {
+                                const importsStr = matchImport[1];
+                                const imports = importsStr.split(',').map(s => s.trim());
+                                if (!imports.includes(match)) {
+                                    imports.push(match);
+                                    const newImportStr = imports.join(', ');
+                                    const lines = content.split('\n');
+                                    for (let i = 0; i < lines.length; i++) {
+                                        if (lines[i].match(importRegex)) {
+                                            const newStr = lines[i].replace(/\{([^}]+)\}/, `{ ${newImportStr} }`);
+                                            cm.replaceRange(newStr, {line: i, ch: 0}, {line: i, ch: lines[i].length});
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else {
+                                cm.replaceRange(`import { ${match} } from '@nestjs/common';\n`, {line: 0, ch: 0});
+                            }
+                        }
+                    });
+                }
+            }
             return { list, from: CodeMirror.Pos(cursor.line, start), to: CodeMirror.Pos(cursor.line, end) };
         });
 
@@ -52,8 +86,13 @@ class CodeEditor {
             extraKeys: {
                 "Ctrl-Space": "autocomplete",
                 "Tab": (cm) => {
-                    if (cm.somethingSelected()) cm.indentSelection("add");
-                    else cm.replaceSelection("  ", "end");
+                    if (cm.state.completionActive && cm.state.completionActive.widget) {
+                        cm.state.completionActive.widget.pick();
+                    } else if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection("  ", "end");
+                    }
                 }
             }
         });
