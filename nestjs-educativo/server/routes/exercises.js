@@ -16,7 +16,8 @@ const EXERCISES_BASE = path.join(__dirname, '../../exercises');
  */
 async function loadExercises(nivel) {
     const nivelMap = {
-        1: 'nivel_1_typescript_intro'
+        1: 'nivel_1_typescript_intro',
+        2: 'nivel_2_conceptos_nestjs'
     };
 
     const nivelDir = nivelMap[nivel];
@@ -34,7 +35,8 @@ async function loadExercises(nivel) {
  */
 async function loadReadme(nivel) {
     const nivelMap = {
-        1: 'nivel_1_typescript_intro'
+        1: 'nivel_1_typescript_intro',
+        2: 'nivel_2_conceptos_nestjs'
     };
 
     const nivelDir = nivelMap[nivel];
@@ -162,15 +164,15 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
     try {
         const nivel = parseInt(req.params.nivel);
         const id = parseInt(req.params.id);
-        const { script } = req.body;
+        const { script, files } = req.body;
 
         // Validate inputs
         if (!sanitizer.validateExerciseId(nivel, id)) {
             return res.status(400).json({ error: 'Invalid exercise ID' });
         }
 
-        if (!script || typeof script !== 'string') {
-            return res.status(400).json({ error: 'Script is required' });
+        if (!script && !files) {
+            return res.status(400).json({ error: 'Script or files are required' });
         }
 
         // Check Docker container
@@ -183,9 +185,11 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
         }
 
         // Sanitize script
-        let sanitizedScript;
+        let sanitizedScript = '';
         try {
-            sanitizedScript = sanitizer.sanitizeTypeScript(script);
+            if (script) {
+                sanitizedScript = sanitizer.sanitizeTypeScript(script);
+            }
         } catch (sanitizeError) {
             return res.status(400).json({
                 error: sanitizeError.message,
@@ -199,9 +203,9 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
         const exercises = await loadExercises(nivel);
         const exercise = exercises.find(ex => ex.id === id);
 
-        // Execute script in Docker
-        const { stdout, stderr, exitCode } = await dockerExecutor.executeScript(
-            sanitizedScript,
+        // Execute project in Docker/Local
+        const { stdout, stderr, exitCode } = await dockerExecutor.executeProject(
+            files || { 'src/main.ts': sanitizedScript },
             `${nivel}_${id}`,
             exercise?.test_script
         );
@@ -215,7 +219,8 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
 
         if (exercise && exercise.expected_output_file) {
             const nivelMap = {
-                1: 'nivel_1_typescript_intro'
+                1: 'nivel_1_typescript_intro',
+                2: 'nivel_2_conceptos_nestjs'
             };
 
             const outputPath = path.join(
@@ -252,6 +257,24 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
         const combinedOutput = stdout + '\n' + stderr;
         const suggestions = validator.analyzeTSErrors(combinedOutput);
 
+        // Formatear mensaje de error
+        let errorFinal = '';
+        if (!comparisonResult.match) {
+            if (combinedOutput.includes('error TS') || combinedOutput.includes('SyntaxError')) {
+                // Error de sintaxis: mostrar trace completo
+                errorFinal = combinedOutput.substring(0, 2000);
+            } else {
+                // Buscar mensaje de error de ejecución lógico o nuestro propio Error lanzado en el test
+                const errorMatch = combinedOutput.match(/(?:Error|Exception)[^:]*:\s*([^\n]+)/);
+                if (errorMatch) {
+                    // Retornar mensaje amigable extrayendo solo la primera línea del error
+                    errorFinal = errorMatch[1].trim();
+                } else {
+                    errorFinal = combinedOutput.substring(0, 2000);
+                }
+            }
+        }
+
         // Extract clean output
         const cleanOutput = validator.extractDataOutput(stdout);
 
@@ -260,7 +283,7 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
             correcto: comparisonResult.match,
             similarity: comparisonResult.similarity,
             output: cleanOutput || stdout.substring(0, 5000), // Limit output size
-            errores: comparisonResult.match ? '' : combinedOutput.substring(0, 2000), // Only show logs if validation failed
+            errores: errorFinal,
             sugerencias: comparisonResult.match ? [] : suggestions, // Only show suggestions if validation failed
             execution_time: 'N/A' // Could track this if needed
         });
@@ -273,6 +296,98 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
             errores: error.message,
             correcto: false
         });
+    }
+});
+
+/**
+ * POST /api/simulator/http
+ * Simula una petición HTTP contra el código del estudiante
+ */
+router.post('/simulator/http', async (req, res) => {
+    try {
+        const { files, request } = req.body;
+        const { method, route, headers, body } = request;
+
+        let sanitizedScript = '';
+        if (files && files['src/main.ts']) {
+            sanitizedScript = sanitizer.sanitizeTypeScript(files['src/main.ts']);
+            files['src/main.ts'] = sanitizedScript;
+        }
+
+        console.log('HTTP SIM FILES:', Object.keys(files));
+        console.log('courses.module.ts:', files['src/courses/courses.module.ts']);
+
+        const fetchOptions = {
+            method: method || 'GET',
+            headers: headers || {},
+        };
+        
+        if (body && ['POST', 'PUT', 'PATCH'].includes(method)) {
+            fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
+            if (!fetchOptions.headers['Content-Type']) {
+                fetchOptions.headers['Content-Type'] = 'application/json';
+            }
+        }
+
+        const testScript = `
+import { Test } from '@nestjs/testing';
+import { AppModule } from './src/app.module';
+
+async function runHttpTest() {
+  let app;
+  try {
+    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
+    app = moduleRef.createNestApplication();
+    await app.init();
+    await app.listen(0);
+    const url = await app.getUrl();
+    
+    const targetUrl = url + '${route.startsWith('/') ? route : '/' + route}';
+    const fetchOptions = ${JSON.stringify(fetchOptions)};
+    
+    const response = await fetch(targetUrl, fetchOptions);
+    const text = await response.text();
+    let parsedData = text;
+    try { parsedData = JSON.parse(text); } catch (e) {}
+
+    const result = {
+      status: response.status,
+      headers: Object.fromEntries(response.headers.entries()),
+      data: parsedData
+    };
+    
+    console.log('HTTP_RESULT:' + JSON.stringify(result));
+  } catch (e: any) {
+    console.log('HTTP_ERROR:' + e.message + '\\n' + e.stack);
+  } finally {
+    if (app) await app.close();
+  }
+}
+runHttpTest();
+`;
+
+        const { stdout, stderr, exitCode } = await dockerExecutor.executeProject(
+            files,
+            'http_sim',
+            testScript
+        );
+
+        const combinedOutput = stdout + '\\n' + stderr;
+        const resultMatch = combinedOutput.match(/HTTP_RESULT:(.*)/);
+        const errorMatch = combinedOutput.match(/HTTP_ERROR:(.*\\n.*)/);
+
+        if (resultMatch) {
+            const data = JSON.parse(resultMatch[1]);
+            return res.json({ success: true, response: data, logs: combinedOutput });
+        } else if (errorMatch) {
+            return res.json({ success: false, error: errorMatch[1], logs: combinedOutput });
+        } else {
+            return res.json({ success: false, error: 'No se pudo simular la petición', logs: combinedOutput });
+        }
+
+    } catch (error) {
+        logger.error('Error simulating HTTP:', error);
+        res.status(500).json({ error: 'Fallo al simular la petición HTTP' });
     }
 });
 

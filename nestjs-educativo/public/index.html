@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.css">
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/styles.css?v=2">
 </head>
 
 <body>
@@ -80,13 +80,13 @@
               </div>
             </div>
             
-            <div class="level-card disabled" data-level="2">
+            <div class="level-card" data-level="2">
               <div class="level-card-bg"></div>
               <div class="level-card-icon">🧱</div>
               <div class="level-card-content">
                 <h3>Nivel 2: NestJS Básico</h3>
                 <p>Controladores, Servicios, Módulos y Arquitectura inicial del backend.</p>
-                <span class="btn-secondary" style="margin-top: 1rem; width: 100%;">Próximamente</span>
+                <span class="btn-primary" style="margin-top: 1rem; width: 100%;">Comenzar Nivel</span>
               </div>
             </div>
           </div>
@@ -114,7 +114,7 @@
         <div id="ejercicios-grid" class="ejercicios-grid"></div>
       </section>
 
-      <!-- Exercise Detail Section -->
+      <!-- Exercise Detail Section (IDE Layout) -->
       <section id="ejercicio-detalle-section" class="ejercicio-detalle-section hidden">
         <div class="ejercicio-header">
           <button id="back-to-list" class="btn-secondary">← Volver a Lista</button>
@@ -133,21 +133,52 @@
             <div id="ejercicio-descripcion" class="ejercicio-descripcion"></div>
           </div>
 
-          <div class="code-section">
-            <div class="code-header">
-              <h3>Tu Solución</h3>
-              <div class="code-actions">
-                <button id="show-solution-btn" class="btn-text" title="Ver solución de referencia">
-                  <span>💡</span> Ver Solución
-                </button>
-                <button id="reset-code-btn" class="btn-text" title="Reiniciar al script inicial">
-                  <span>↻</span> Reiniciar
-                </button>
+          <!-- IDE Layout -->
+          <div class="ide-layout">
+            <!-- File Tree Panel -->
+            <div class="ide-sidebar" id="ide-sidebar">
+              <div class="ide-sidebar-header">
+                <span class="ide-sidebar-title">EXPLORADOR</span>
+              </div>
+              <div class="ide-sidebar-content" id="file-tree-container"></div>
+            </div>
+
+            <!-- Editor Panel -->
+            <div class="ide-editor-panel">
+              <div class="code-section">
+                <div class="code-header">
+                  <h3>Tu Solución</h3>
+                  <div class="code-actions">
+                    <button id="show-solution-btn" class="btn-text" title="Ver solución de referencia">
+                      <span>💡</span> Ver Solución
+                    </button>
+                    <button id="reset-code-btn" class="btn-text" title="Reiniciar al script inicial">
+                      <span>↻</span> Reiniciar
+                    </button>
+                  </div>
+                </div>
+                <div class="editor-wrapper">
+                  <div class="editor-tabs-container" id="editor-tabs-container">
+                    <div id="editor-tabs" class="editor-tabs"></div>
+                    <button id="add-tab-btn" class="add-tab-btn" title="Nuevo Fichero">+</button>
+                  </div>
+                  <textarea id="code-editor" class="code-editor" spellcheck="false"
+                    placeholder="Escribe tu código TypeScript/NestJS aquí..."></textarea>
+                </div>
+                </div>
               </div>
             </div>
-            <div class="editor-wrapper">
-              <textarea id="code-editor" class="code-editor" spellcheck="false"
-                placeholder="Escribe tu código TypeScript/NestJS aquí..."></textarea>
+
+          <!-- Terminal Panel -->
+          <div class="terminal-panel" id="terminal-panel">
+            <div class="terminal-header">
+              <span class="terminal-title">⬢ TERMINAL</span>
+              <span class="terminal-hint">Ejecuta: nest g res users</span>
+            </div>
+            <div class="terminal-output" id="terminal-output"></div>
+            <div class="terminal-input-row">
+              <span class="terminal-prompt">$</span>
+              <input type="text" id="terminal-input" class="terminal-input" placeholder="nest generate resource users" autocomplete="off" spellcheck="false">
             </div>
           </div>
 
@@ -159,14 +190,53 @@
           </div>
 
 
-          <div class="action-section">
+          <div class="action-section" style="display: flex; gap: 1rem;">
             <button id="validar-btn" class="btn-primary btn-large">
               <span class="btn-icon">▶</span>
-              Validar Script
+              Validar Proyecto
+            </button>
+            <button id="open-http-simulator-btn" class="btn-secondary btn-large">
+              <span class="btn-icon">🌐</span>
+              Simulador HTTP
             </button>
             <div id="loading-indicator" class="loading-indicator hidden">
               <div class="spinner"></div>
               <span>Ejecutando código...</span>
+            </div>
+          </div>
+
+          <!-- HTTP Simulator Modal -->
+          <div id="http-simulator-modal" class="modal-overlay hidden">
+            <div class="modal-content http-simulator-content">
+              <div class="modal-header">
+                <h3>Simulador HTTP (Postman local)</h3>
+                <button id="close-http-modal-btn" class="btn-icon-only" title="Cerrar">×</button>
+              </div>
+              <div class="modal-body" style="display: flex; flex-direction: column; gap: 1rem;">
+                <p style="font-size: 0.9rem; color: #9ca3af;">Ejecuta peticiones contra tu código fuente actual. El servidor se levantará dinámicamente.</p>
+                <div class="http-request-row" style="display: flex; gap: 0.5rem;">
+                  <select id="http-method" style="padding: 0.5rem; background: #374151; color: white; border: 1px solid #4b5563; border-radius: 4px; font-weight: bold;">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PATCH">PATCH</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                  </select>
+                  <input type="text" id="http-route" placeholder="/cars" value="/cars" style="flex: 1; padding: 0.5rem; background: #1f2937; color: white; border: 1px solid #4b5563; border-radius: 4px; font-family: monospace;">
+                  <button id="http-send-btn" class="btn-primary">Enviar</button>
+                </div>
+                <div class="http-body-section" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                  <label for="http-body" style="font-weight: 600; font-size: 0.9rem;">JSON Body (Para POST/PATCH)</label>
+                  <textarea id="http-body" spellcheck="false" placeholder='{\n  "brand": "Toyota"\n}' style="min-height: 100px; padding: 0.5rem; background: #1f2937; color: #a6e22e; border: 1px solid #4b5563; border-radius: 4px; font-family: 'Fira Code', monospace;"></textarea>
+                </div>
+                <div class="http-response-section" style="display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label style="font-weight: 600; font-size: 0.9rem;">Respuesta</label>
+                    <span id="http-response-status" style="font-size: 0.85rem; font-weight: bold; padding: 0.2rem 0.5rem; border-radius: 4px;"></span>
+                  </div>
+                  <pre id="http-response-body" style="flex: 1; min-height: 150px; background: #111827; padding: 1rem; border-radius: 4px; overflow-y: auto; color: #e5e7eb; border: 1px solid #374151;">Esperando petición...</pre>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -197,10 +267,13 @@
   </main>
 
   <!-- Progress Tracker Sidebar -->
+  <button id="floating-toggle-progreso-btn" class="floating-progreso-btn hidden">
+    📈 Ver Progreso
+  </button>
   <aside id="progreso-sidebar" class="progreso-sidebar hidden">
     <div class="progreso-header">
       <h3>Tu Progreso</h3>
-      <button id="toggle-progreso-btn" class="btn-icon-only">−</button>
+      <button id="toggle-progreso-btn" class="btn-icon-only" title="Ocultar">×</button>
     </div>
     <div id="progreso-content" class="progreso-content">
       <div class="progreso-stats">
@@ -239,6 +312,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/javascript-hint.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/anyword-hint.min.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/vfs.js"></script>
+  <script src="js/file-tree.js"></script>
+  <script src="js/nest-cli.js"></script>
   <script src="js/editor.js"></script>
   <script src="js/app.js"></script>
 </body>

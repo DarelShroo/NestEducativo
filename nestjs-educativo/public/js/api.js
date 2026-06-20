@@ -63,26 +63,57 @@ const api = {
     },
 
     /**
-     * Validate user script
+     * Validate user script and project files
      */
-    async validateExercise(nivel, id, script) {
+    async validateExercise(nivel, id, script, files = null) {
         try {
+            const payload = { script };
+            if (files) {
+                payload.files = files;
+            }
+
             const response = await fetch(`${API_BASE}/nivel/${nivel}/ejercicio/${id}/validar`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ script })
+                body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Validation failed');
+                const errData = await response.json();
+                throw new Error(errData.errores || errData.error || 'Validation failed');
             }
 
             return await response.json();
         } catch (error) {
             console.error('Error validating exercise:', error);
+            throw error;
+        }
+    },
+
+    /**
+     * Simulate HTTP Request
+     */
+    async simulateHttp(request, files = null) {
+        try {
+            const payload = { request, files };
+            const response = await fetch(`${API_BASE}/simulator/http`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'HTTP simulation failed');
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error simulating HTTP:', error);
             throw error;
         }
     }
