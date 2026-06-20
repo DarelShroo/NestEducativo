@@ -160,21 +160,26 @@ class NestCLI {
         }
 
         let content = vfs.getContent(modPath);
-        if (content.includes(className)) return;
-        // Add import
-        content = `import { ${className} } from '${relativeImportPath}';\n` + content;
+        const importStatement = `import { ${className} } from '${relativeImportPath}';`;
+        if (!content.includes(importStatement)) {
+            content = `${importStatement}\n` + content;
+        }
         
         // Add to array if exists
         const regex = new RegExp(`(${arrayName}:\\s*\\[)([^\\]]*)`, 's');
         if (regex.test(content)) {
             content = content.replace(regex, (m, start, items) => {
+                if (items.includes(className)) return m; // already in array
                 const trimmed = items.trim();
                 return trimmed ? `${start}${items.trim()}, ${className}` : `${start}${className}`;
             });
         } else {
             // Array doesn't exist, inject it into @Module({
             const moduleRegex = /(@Module\s*\(\s*\{)/;
-            content = content.replace(moduleRegex, `$1 ${arrayName}: [${className}], `);
+            // Only inject if it doesn't already have it (naive check just in case)
+            if (!content.includes(`${arrayName}:`)) {
+                content = content.replace(moduleRegex, `$1 ${arrayName}: [${className}], `);
+            }
         }
         
         vfs.setContent(modPath, content);
@@ -189,18 +194,24 @@ class NestCLI {
         if (!vfs.hasFile(appModPath)) return;
         let content = vfs.getContent(appModPath);
         const modName = `${cls}Module`;
-        if (content.includes(modName)) return;
-        content = `import { ${modName} } from './${name}/${name}.module';\n` + content;
+        
+        const importStatement = `import { ${modName} } from './${name}/${name}.module';`;
+        if (!content.includes(importStatement)) {
+            content = `${importStatement}\n` + content;
+        }
         
         const importsRegex = /(imports:\s*\[)([^\]]*)/s;
         if (importsRegex.test(content)) {
             content = content.replace(importsRegex, (m, start, items) => {
+                if (items.includes(modName)) return m; // already in array
                 const trimmed = items.trim();
                 return trimmed ? `${start}${items.trim()}, ${modName}` : `${start}${modName}`;
             });
         } else {
             const moduleRegex = /(@Module\s*\(\s*\{)/;
-            content = content.replace(moduleRegex, `$1 imports: [${modName}], `);
+            if (!content.includes(`imports:`)) {
+                content = content.replace(moduleRegex, `$1 imports: [${modName}], `);
+            }
         }
         
         vfs.setContent(appModPath, content);
