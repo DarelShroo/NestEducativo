@@ -163,12 +163,20 @@ class NestCLI {
         if (content.includes(className)) return;
         // Add import
         content = `import { ${className} } from '${relativeImportPath}';\n` + content;
-        // Add to array
+        
+        // Add to array if exists
         const regex = new RegExp(`(${arrayName}:\\s*\\[)([^\\]]*)`, 's');
-        content = content.replace(regex, (m, start, items) => {
-            const trimmed = items.trim();
-            return trimmed ? `${start}${items.trim()}, ${className}` : `${start}${className}`;
-        });
+        if (regex.test(content)) {
+            content = content.replace(regex, (m, start, items) => {
+                const trimmed = items.trim();
+                return trimmed ? `${start}${items.trim()}, ${className}` : `${start}${className}`;
+            });
+        } else {
+            // Array doesn't exist, inject it into @Module({
+            const moduleRegex = /(@Module\s*\(\s*\{)/;
+            content = content.replace(moduleRegex, `$1 ${arrayName}: [${className}], `);
+        }
+        
         vfs.setContent(modPath, content);
         const doc = vfs.getDoc(modPath);
         if (doc) doc.setValue(content);
@@ -183,11 +191,18 @@ class NestCLI {
         const modName = `${cls}Module`;
         if (content.includes(modName)) return;
         content = `import { ${modName} } from './${name}/${name}.module';\n` + content;
+        
         const importsRegex = /(imports:\s*\[)([^\]]*)/s;
-        content = content.replace(importsRegex, (m, start, items) => {
-            const trimmed = items.trim();
-            return trimmed ? `${start}${items.trim()}, ${modName}` : `${start}${modName}`;
-        });
+        if (importsRegex.test(content)) {
+            content = content.replace(importsRegex, (m, start, items) => {
+                const trimmed = items.trim();
+                return trimmed ? `${start}${items.trim()}, ${modName}` : `${start}${modName}`;
+            });
+        } else {
+            const moduleRegex = /(@Module\s*\(\s*\{)/;
+            content = content.replace(moduleRegex, `$1 imports: [${modName}], `);
+        }
+        
         vfs.setContent(appModPath, content);
         const doc = vfs.getDoc(appModPath);
         if (doc) doc.setValue(content);
