@@ -33,6 +33,24 @@ class CodeEditor {
             else if (word.startsWith('@') && word !== '@nestjs/common') { word = word.substring(1); start++; }
             const jsHints = CodeMirror.hint.javascript(cm) || { list: [] };
             let list = jsHints.list.map(item => typeof item === 'string' ? item : item.text);
+            
+            // Contextual LS
+            if (window.LanguageService) {
+                const contextualHints = window.LanguageService.getContextualHints(cm, cursor, token, word);
+                if (contextualHints && contextualHints.length > 0) {
+                    const ctxList = contextualHints.map(hint => {
+                        return {
+                            text: hint.text,
+                            displayText: hint.displayText || hint.text,
+                            hint: function(cm, data, completion) {
+                                cm.replaceRange(completion.text, data.from, data.to);
+                            }
+                        };
+                    });
+                    return { list: ctxList, from: CodeMirror.Pos(cursor.line, start), to: CodeMirror.Pos(cursor.line, end) };
+                }
+            }
+            
             const nestMatches = nestjsKeywords.filter(k => k.toLowerCase().startsWith(word.toLowerCase()));
             for (let match of nestMatches) {
                 if (!list.includes(match) && !list.some(l => typeof l === 'object' && l.text === match)) {
@@ -98,8 +116,16 @@ class CodeEditor {
         });
 
         this.cm.on("inputRead", (cm, change) => {
-            if (change.origin !== "setValue" && (change.text[0].match(/[a-zA-Z]/) || change.text[0] === '@')) {
+            if (change.origin !== "setValue" && (change.text[0].match(/[a-zA-Z.]/) || change.text[0] === '@')) {
                 CodeMirror.commands.autocomplete(cm, null, { completeSingle: false });
+            }
+        });
+        
+        this.cm.on("mousedown", (cm, event) => {
+            if (event.ctrlKey || event.metaKey) {
+                if (window.LanguageService) {
+                    window.LanguageService.goToDefinition(cm, event);
+                }
             }
         });
 

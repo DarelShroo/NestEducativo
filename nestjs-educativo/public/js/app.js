@@ -390,6 +390,7 @@ async function handleLevelChange(nivel) {
         state.exercises = exercises;
 
         showSection('nivel-info');
+        updateProgressDisplay();
 
     } catch (error) {
         console.error('Error loading level:', error);
@@ -820,6 +821,26 @@ function updateProgressDisplay() {
 
     const percentage = (completed / total) * 100;
     elements.progresoBar.style.width = `${percentage}%`;
+
+    // Populate the progress list in the sidebar
+    if (elements.progresoList) {
+        elements.progresoList.innerHTML = '';
+        state.exercises.forEach(ex => {
+            const isCompleted = isExerciseCompleted(state.currentLevel, ex.id);
+            const item = document.createElement('div');
+            item.className = `progreso-item ${isCompleted ? 'completed' : ''}`;
+            item.innerHTML = `
+                <span class="progreso-icon">${isCompleted ? '✓' : '○'}</span>
+                <span class="progreso-title">${ex.id}. ${ex.title_es}</span>
+            `;
+            // Make them clickable to navigate!
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                loadExerciseDetail(ex.id);
+            });
+            elements.progresoList.appendChild(item);
+        });
+    }
 }
 
 // ========== Utilities ==========
