@@ -84,8 +84,9 @@ async function executeProject(files, exerciseId, testScript = '') {
         await fs.writeFile(path.join(projectPath, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
 
         // Symlink node_modules to ensure resolution
+        const nodeModulesPath = path.resolve(__dirname, '../../node_modules');
         try {
-            await execPromise(`ln -s /app/node_modules node_modules`, { cwd: projectPath });
+            await execPromise(`ln -s ${nodeModulesPath} node_modules`, { cwd: projectPath });
         } catch(e) {
             console.error('Failed to symlink node_modules', e);
         }

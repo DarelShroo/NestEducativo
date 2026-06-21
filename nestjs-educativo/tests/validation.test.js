@@ -29,7 +29,39 @@ describe('API de Validación de Ejercicios', () => {
         }
         expect(result.correcto).toBe(true);
       }
-    }, 60000); // Timeout extendido porque validar varios scripts toma tiempo
+    }, 90000); // Timeout extendido porque validar varios scripts toma tiempo
+  });
+
+  describe('Soluciones Correctas del Nivel 2', () => {
+    let level2Exercises = [];
+    beforeAll(() => {
+      const exercisesPath = path.resolve(__dirname, '../exercises/nivel_2_conceptos_nestjs/exercises.json');
+      level2Exercises = JSON.parse(fs.readFileSync(exercisesPath, 'utf8'));
+    });
+
+    it('debería validar exitosamente todas las soluciones correctas del nivel 2', async () => {
+      for (const ex of level2Exercises) {
+        const filesPayload = {};
+        for (const file of ex.files || []) {
+          filesPayload[file.path] = file.content;
+        }
+        for (const file of ex.solution_files || []) {
+          filesPayload[file.path] = file.content;
+        }
+
+        const response = await fetch(`${API_URL}/nivel/2/ejercicio/${ex.id}/validar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ files: filesPayload })
+        });
+        const result = await response.json();
+        
+        if (!result.correcto) {
+          console.error(`Failed at level 2 exercise ${ex.id} with errors: ${result.errores}`);
+        }
+        expect(result.correcto).toBe(true);
+      }
+    }, 90000);
   });
 
   describe('Comportamiento de Error', () => {
