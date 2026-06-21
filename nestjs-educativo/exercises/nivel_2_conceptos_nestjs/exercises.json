@@ -339,10 +339,6 @@
       {
         "path": "src/app.module.ts",
         "content": "import { Module } from '@nestjs/common';\n\n@Module({ imports: [] })\nexport class AppModule {}\n"
-      },
-      {
-        "path": "src/courses/courses.module.ts",
-        "content": ""
       }
     ],
     "hints_es": [

@@ -171,8 +171,7 @@ const exercises = [
     "description_en": "Free will exercise: create a complete CRUD for Courses.",
     "files": [
       { "path": "src/main.ts", "content": mainTs },
-      { "path": "src/app.module.ts", "content": "import { Module } from '@nestjs/common';\n\n@Module({ imports: [] })\nexport class AppModule {}\n" },
-      { "path": "src/courses/courses.module.ts", "content": "" }
+      { "path": "src/app.module.ts", "content": "import { Module } from '@nestjs/common';\n\n@Module({ imports: [] })\nexport class AppModule {}\n" }
     ],
     "hints_es": ["Empieza usando la terminal: `nest g res courses --no-spec`", "Recuerda añadir datos en tu Service.", "No te olvides de aplicar el `@Param('id', ParseIntPipe)` en tu controlador."],
     "hints_en": ["Use the CLI to generate the resource.", "Apply ParseIntPipe."],
