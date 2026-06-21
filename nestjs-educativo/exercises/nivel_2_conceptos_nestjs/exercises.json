@@ -341,6 +341,40 @@
         "content": "import { Module } from '@nestjs/common';\n\n@Module({ imports: [] })\nexport class AppModule {}\n"
       }
     ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CoursesModule } from './courses/courses.module';\n\n@Module({\n  imports: [CoursesModule],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/courses/courses.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CoursesService } from './courses.service';\nimport { CoursesController } from './courses.controller';\n\n@Module({\n  controllers: [CoursesController],\n  providers: [CoursesService],\n})\nexport class CoursesModule {}\n"
+      },
+      {
+        "path": "src/courses/courses.controller.ts",
+        "content": "import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';\nimport { CoursesService } from './courses.service';\nimport { CreateCourseDto } from './dto/create-course.dto';\nimport { UpdateCourseDto } from './dto/update-course.dto';\n\n@Controller('courses')\nexport class CoursesController {\n  constructor(private readonly coursesService: CoursesService) {}\n\n  @Post()\n  create(@Body() createCourseDto: CreateCourseDto) {\n    return this.coursesService.create(createCourseDto);\n  }\n\n  @Get()\n  findAll() {\n    return this.coursesService.findAll();\n  }\n\n  @Get(':id')\n  findOne(@Param('id', ParseIntPipe) id: number) {\n    return this.coursesService.findOne(id);\n  }\n\n  @Patch(':id')\n  update(@Param('id', ParseIntPipe) id: number, @Body() updateCourseDto: UpdateCourseDto) {\n    return this.coursesService.update(id, updateCourseDto);\n  }\n\n  @Delete(':id')\n  remove(@Param('id', ParseIntPipe) id: number) {\n    return this.coursesService.remove(id);\n  }\n}\n"
+      },
+      {
+        "path": "src/courses/courses.service.ts",
+        "content": "import { Injectable, NotFoundException } from '@nestjs/common';\nimport { CreateCourseDto } from './dto/create-course.dto';\nimport { UpdateCourseDto } from './dto/update-course.dto';\n\n@Injectable()\nexport class CoursesService {\n  private courses = [{ id: 1, name: 'NestJS Masterclass' }];\n  private nextId = 2;\n\n  create(createCourseDto: any) {\n    const newCourse = { id: this.nextId++, name: createCourseDto.name || 'Nuevo Curso' };\n    this.courses.push(newCourse);\n    return newCourse;\n  }\n\n  findAll() {\n    return this.courses;\n  }\n\n  findOne(id: number) {\n    const course = this.courses.find(c => c.id === id);\n    if (!course) {\n      throw new NotFoundException(`Course with id ${id} not found`);\n    }\n    return course;\n  }\n\n  update(id: number, updateCourseDto: any) {\n    const course = this.findOne(id);\n    if (updateCourseDto.name) {\n      course.name = updateCourseDto.name;\n    }\n    return course;\n  }\n\n  remove(id: number) {\n    const index = this.courses.findIndex(c => c.id === id);\n    if (index === -1) {\n      throw new NotFoundException(`Course with id ${id} not found`);\n    }\n    const removed = this.courses.splice(index, 1);\n    return removed[0];\n  }\n}\n"
+      },
+      {
+        "path": "src/courses/dto/create-course.dto.ts",
+        "content": "export class CreateCourseDto {\n  name: string;\n}\n"
+      },
+      {
+        "path": "src/courses/dto/update-course.dto.ts",
+        "content": "import { PartialType } from '@nestjs/mapped-types';\nimport { CreateCourseDto } from './create-course.dto';\n\nexport class UpdateCourseDto extends PartialType(CreateCourseDto) {}\n"
+      },
+      {
+        "path": "src/courses/entities/course.entity.ts",
+        "content": "export class Course {\n  id: number;\n  name: string;\n}\n"
+      }
+    ],
     "hints_es": [
       "Empieza usando la terminal: `nest g res courses --no-spec`",
       "Recuerda añadir datos en tu Service.",

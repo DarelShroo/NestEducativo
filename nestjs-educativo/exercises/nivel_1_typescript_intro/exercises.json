@@ -95,7 +95,7 @@
     "solution_script": "class PokemonTrainer {\n  constructor(public name: string, private level: number = 1) {}\n  \n  levelUp() {\n    this.level++;\n  }\n  \n  get profile() {\n    return `Trainer ${this.name} is level ${this.level}`;\n  }\n}\nconst trainer = new PokemonTrainer('Ash');",
     "hints_es": ["El constructor puede dar un valor por defecto: `private level: number = 1`", "El getter se define con la palabra clave `get` seguida del nombre."],
     "hints_en": ["Constructor can provide default values."],
-    "test_script": "if (trainer.profile !== 'Trainer Ash is level 1') throw new Error('Getter profile incorrecto'); trainer.levelUp(); if (trainer.profile !== 'Trainer Ash is level 2') throw new Error('Método levelUp no funciona');"
+    "test_script": "if ((trainer.profile as string) !== 'Trainer Ash is level 1') throw new Error('Getter profile incorrecto'); trainer.levelUp(); if ((trainer.profile as string) !== 'Trainer Ash is level 2') throw new Error('Método levelUp no funciona');"
   },
   {
     "id": 8,

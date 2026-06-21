@@ -24,22 +24,29 @@ async function executeProject(files, exerciseId, testScript = '') {
     try {
         await fs.mkdir(projectPath, { recursive: true });
         
+        const isLevel1 = exerciseId.startsWith('1_');
+
         // Write all user files
         for (const [filePath, content] of Object.entries(files)) {
             const fullPath = path.join(projectPath, filePath);
             await fs.mkdir(path.dirname(fullPath), { recursive: true });
             
-            // Auto inject reflect-metadata if this is main.ts
             let fileContent = content;
             if (filePath === 'src/main.ts') {
-                fileContent = `import 'reflect-metadata';\n` + fileContent;
+                if (isLevel1) {
+                    if (testScript) {
+                        fileContent = fileContent + '\n\n// --- VALIDATION SCRIPT ---\n' + testScript;
+                    }
+                } else {
+                    fileContent = `import 'reflect-metadata';\n` + fileContent;
+                }
             }
             await fs.writeFile(fullPath, fileContent);
         }
 
         // Add test script if provided (it will import from user files)
         let entryFile = 'src/main.ts';
-        if (testScript) {
+        if (testScript && !isLevel1) {
             entryFile = 'test.ts';
             const fullTestScript = `import 'reflect-metadata';\n` + testScript;
             await fs.writeFile(path.join(projectPath, 'test.ts'), fullTestScript);
@@ -71,7 +78,8 @@ async function executeProject(files, exerciseId, testScript = '') {
                 "forceConsistentCasingInFileNames": false,
                 "noFallthroughCasesInSwitch": false,
                 "ignoreDeprecations": "6.0"
-            }
+            },
+            "exclude": ["**/*.spec.ts"]
         };
         await fs.writeFile(path.join(projectPath, 'tsconfig.json'), JSON.stringify(tsconfig, null, 2));
 

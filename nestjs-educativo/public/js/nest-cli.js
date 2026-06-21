@@ -24,7 +24,8 @@ class NestCLI {
             if (parts.length < 4) return this._out('Uso: nest generate <schematic> <name>', true);
             const schematic = this.aliases[parts[2]] || parts[2];
             const name = parts[3].toLowerCase();
-            return this._generate(schematic, name);
+            const noSpec = trimmed.includes('--no-spec');
+            return this._generate(schematic, name, noSpec);
         }
         if (cmd === 'new') {
             return this._out('El proyecto ya está inicializado. Usa "nest generate" para crear recursos.');
@@ -33,20 +34,20 @@ class NestCLI {
         return this._out(`Subcomando desconocido '${cmd}'. Usa 'nest help'.`, true);
     }
 
-    _generate(schematic, name) {
+    _generate(schematic, name, noSpec) {
         const vfs = window.vfs;
         if (!vfs) return this._out('Error interno: VFS no disponible.', true);
 
         const generators = {
-            module: () => this._genModule(name),
-            controller: () => this._genController(name),
-            service: () => this._genService(name),
-            resource: () => this._genResource(name),
-            guard: () => this._genGuard(name),
-            interceptor: () => this._genInterceptor(name),
-            pipe: () => this._genPipe(name),
-            decorator: () => this._genDecorator(name),
-            filter: () => this._genFilter(name)
+            module: () => this._genModule(name, noSpec),
+            controller: () => this._genController(name, noSpec),
+            service: () => this._genService(name, noSpec),
+            resource: () => this._genResource(name, noSpec),
+            guard: () => this._genGuard(name, noSpec),
+            interceptor: () => this._genInterceptor(name, noSpec),
+            pipe: () => this._genPipe(name, noSpec),
+            decorator: () => this._genDecorator(name, noSpec),
+            filter: () => this._genFilter(name, noSpec)
         };
 
         const gen = generators[schematic];
@@ -54,46 +55,73 @@ class NestCLI {
         return gen();
     }
 
-    _genModule(name) {
+    _genModule(name, noSpec) {
         const cls = this._classify(name);
         const files = [
-            { path: `src/${name}/${name}.module.ts`, content: `import { Module } from '@nestjs/common';\n\n@Module({\n  controllers: [],\n  providers: [],\n  exports: [],\n})\nexport class ${cls}Module {}\n` }
+            { path: `src/${name}/${name}.module.ts`, content: `import { Module } from '@nestjs/common';\n\n@Module({})\nexport class ${cls}Module {}\n` }
         ];
-        return this._createFiles(files, `CREATE src/${name}/${name}.module.ts`);
+        this._createFiles(files);
+        this._updateAppModule(name, cls);
+        this._out(`CREATE src/${name}/${name}.module.ts\nUPDATE src/app.module.ts`);
     }
 
-    _genController(name) {
+    _genController(name, noSpec) {
         const cls = this._classify(name);
         const files = [
-            { path: `src/${name}/${name}.controller.ts`, content: `import { Controller, Get } from '@nestjs/common';\nimport { ${cls}Service } from './${name}.service';\n\n@Controller('${name}')\nexport class ${cls}Controller {\n  constructor(private readonly ${name}Service: ${cls}Service) {}\n\n  @Get()\n  findAll() {\n    return this.${name}Service.findAll();\n  }\n}\n` }
+            { path: `src/${name}/${name}.controller.ts`, content: `import { Controller } from '@nestjs/common';\n\n@Controller('${name}')\nexport class ${cls}Controller {}\n` }
         ];
-        this._createFiles(files, `CREATE src/${name}/${name}.controller.ts`);
+        let createMsg = `CREATE src/${name}/${name}.controller.ts`;
+
+        if (!noSpec) {
+            files.push({
+                path: `src/${name}/${name}.controller.spec.ts`,
+                content: `import { Test, TestingModule } from '@nestjs/testing';\nimport { ${cls}Controller } from './${name}.controller';\n\ndescribe('${cls}Controller', () => {\n  let controller: ${cls}Controller;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      controllers: [${cls}Controller],\n    }).compile();\n\n    controller = module.get<${cls}Controller>(${cls}Controller);\n  });\n\n  it('should be defined', () => {\n    expect(controller).toBeDefined();\n  });\n});\n`
+            });
+            createMsg = `CREATE src/${name}/${name}.controller.spec.ts\nCREATE src/${name}/${name}.controller.ts`;
+        }
+
+        this._createFiles(files, createMsg);
         this._updateModule(name, `${cls}Controller`, 'controllers', `./${name}.controller`);
     }
 
-    _genService(name) {
+    _genService(name, noSpec) {
         const cls = this._classify(name);
         const files = [
-            { path: `src/${name}/${name}.service.ts`, content: `import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class ${cls}Service {\n  findAll() {\n    return [];\n  }\n\n  findOne(id: number) {\n    return { id };\n  }\n\n  create(dto: any) {\n    return { id: Date.now(), ...dto };\n  }\n\n  update(id: number, dto: any) {\n    return { id, ...dto };\n  }\n\n  remove(id: number) {\n    return { id, deleted: true };\n  }\n}\n` }
+            { path: `src/${name}/${name}.service.ts`, content: `import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class ${cls}Service {}\n` }
         ];
-        this._createFiles(files, `CREATE src/${name}/${name}.service.ts`);
+        let createMsg = `CREATE src/${name}/${name}.service.ts`;
+
+        if (!noSpec) {
+            files.push({
+                path: `src/${name}/${name}.service.spec.ts`,
+                content: `import { Test, TestingModule } from '@nestjs/testing';\nimport { ${cls}Service } from './${name}.service';\n\ndescribe('${cls}Service', () => {\n  let service: ${cls}Service;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [${cls}Service],\n    }).compile();\n\n    service = module.get<${cls}Service>(${cls}Service);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n});\n`
+            });
+            createMsg = `CREATE src/${name}/${name}.service.spec.ts\nCREATE src/${name}/${name}.service.ts`;
+        }
+
+        this._createFiles(files, createMsg);
         this._updateModule(name, `${cls}Service`, 'providers', `./${name}.service`);
     }
 
-    _genResource(name) {
+    _genResource(name, noSpec) {
         const cls = this._classify(name);
         const lines = [];
+
         // Module
-        const modContent = `import { Module } from '@nestjs/common';\nimport { ${cls}Controller } from './${name}.controller';\nimport { ${cls}Service } from './${name}.service';\n\n@Module({\n  controllers: [${cls}Controller],\n  providers: [${cls}Service],\n  exports: [${cls}Service],\n})\nexport class ${cls}Module {}\n`;
+        const modContent = `import { Module } from '@nestjs/common';\nimport { ${cls}Service } from './${name}.service';\nimport { ${cls}Controller } from './${name}.controller';\n\n@Module({\n  controllers: [${cls}Controller],\n  providers: [${cls}Service],\n})\nexport class ${cls}Module {}\n`;
+
         // Controller
-        const ctrlContent = `import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';\nimport { ${cls}Service } from './${name}.service';\nimport { Create${cls}Dto } from './dto/create-${name}.dto';\nimport { Update${cls}Dto } from './dto/update-${name}.dto';\n\n@Controller('${name}')\nexport class ${cls}Controller {\n  constructor(private readonly ${name}Service: ${cls}Service) {}\n\n  @Post()\n  create(@Body() create${cls}Dto: Create${cls}Dto) {\n    return this.${name}Service.create(create${cls}Dto);\n  }\n\n  @Get()\n  findAll() {\n    return this.${name}Service.findAll();\n  }\n\n  @Get(':id')\n  findOne(@Param('id', ParseIntPipe) id: number) {\n    return this.${name}Service.findOne(id);\n  }\n\n  @Patch(':id')\n  update(@Param('id', ParseIntPipe) id: number, @Body() update${cls}Dto: Update${cls}Dto) {\n    return this.${name}Service.update(id, update${cls}Dto);\n  }\n\n  @Delete(':id')\n  remove(@Param('id', ParseIntPipe) id: number) {\n    return this.${name}Service.remove(id);\n  }\n}\n`;
+        const ctrlContent = `import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';\nimport { ${cls}Service } from './${name}.service';\nimport { Create${cls}Dto } from './dto/create-${name}.dto';\nimport { Update${cls}Dto } from './dto/update-${name}.dto';\n\n@Controller('${name}')\nexport class ${cls}Controller {\n  constructor(private readonly ${name}Service: ${cls}Service) {}\n\n  @Post()\n  create(@Body() create${cls}Dto: Create${cls}Dto) {\n    return this.${name}Service.create(create${cls}Dto);\n  }\n\n  @Get()\n  findAll() {\n    return this.${name}Service.findAll();\n  }\n\n  @Get(':id')\n  findOne(@Param('id') id: string) {\n    return this.${name}Service.findOne(+id);\n  }\n\n  @Patch(':id')\n  update(@Param('id') id: string, @Body() update${cls}Dto: Update${cls}Dto) {\n    return this.${name}Service.update(+id, update${cls}Dto);\n  }\n\n  @Delete(':id')\n  remove(@Param('id') id: string) {\n    return this.${name}Service.remove(+id);\n  }\n}\n`;
+
         // Service
-        const svcContent = `import { Injectable, NotFoundException } from '@nestjs/common';\nimport { Create${cls}Dto } from './dto/create-${name}.dto';\nimport { Update${cls}Dto } from './dto/update-${name}.dto';\n\n@Injectable()\nexport class ${cls}Service {\n  private items: any[] = [];\n  private idCounter = 1;\n\n  create(dto: Create${cls}Dto) {\n    const item = { id: this.idCounter++, ...dto };\n    this.items.push(item);\n    return item;\n  }\n\n  findAll() {\n    return this.items;\n  }\n\n  findOne(id: number) {\n    const item = this.items.find(i => i.id === id);\n    if (!item) throw new NotFoundException(\`${cls} #\${id} not found\`);\n    return item;\n  }\n\n  update(id: number, dto: Update${cls}Dto) {\n    const idx = this.items.findIndex(i => i.id === id);\n    if (idx === -1) throw new NotFoundException(\`${cls} #\${id} not found\`);\n    this.items[idx] = { ...this.items[idx], ...dto, id };\n    return this.items[idx];\n  }\n\n  remove(id: number) {\n    const idx = this.items.findIndex(i => i.id === id);\n    if (idx === -1) throw new NotFoundException(\`${cls} #\${id} not found\`);\n    return this.items.splice(idx, 1)[0];\n  }\n}\n`;
+        const svcContent = `import { Injectable } from '@nestjs/common';\nimport { Create${cls}Dto } from './dto/create-${name}.dto';\nimport { Update${cls}Dto } from './dto/update-${name}.dto';\n\n@Injectable()\nexport class ${cls}Service {\n  create(create${cls}Dto: Create${cls}Dto) {\n    return 'This action adds a new ${name}';\n  }\n\n  findAll() {\n    return \`This action returns all ${name}\`;\n  }\n\n  findOne(id: number) {\n    return \`This action returns a #\${id} ${name}\`;\n  }\n\n  update(id: number, update${cls}Dto: Update${cls}Dto) {\n    return \`This action updates a #\${id} ${name}\`;\n  }\n\n  remove(id: number) {\n    return \`This action removes a #\${id} ${name}\`;\n  }\n}\n`;
+
         // DTOs
-        const createDto = `export class Create${cls}Dto {\n  // TODO: define properties\n}\n`;
-        const updateDto = `import { Create${cls}Dto } from './create-${name}.dto';\n\nexport class Update${cls}Dto extends Create${cls}Dto {\n  // TODO: Add any optional properties or override\n}\n`;
+        const createDto = `export class Create${cls}Dto {}\n`;
+        const updateDto = `import { PartialType } from '@nestjs/mapped-types';\nimport { Create${cls}Dto } from './create-${name}.dto';\n\nexport class Update${cls}Dto extends PartialType(Create${cls}Dto) {}\n`;
+
         // Entity
-        const entity = `export class ${cls} {\n  id: number;\n  // TODO: define entity properties\n}\n`;
+        const entity = `export class ${cls} {}\n`;
 
         const files = [
             { path: `src/${name}/${name}.module.ts`, content: modContent },
@@ -104,13 +132,30 @@ class NestCLI {
             { path: `src/${name}/entities/${name}.entity.ts`, content: entity }
         ];
 
-        this._createFiles(files);
         lines.push(`CREATE src/${name}/${name}.module.ts`);
+
+        if (!noSpec) {
+            files.push({
+                path: `src/${name}/${name}.controller.spec.ts`,
+                content: `import { Test, TestingModule } from '@nestjs/testing';\nimport { ${cls}Controller } from './${name}.controller';\nimport { ${cls}Service } from './${name}.service';\n\ndescribe('${cls}Controller', () => {\n  let controller: ${cls}Controller;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      controllers: [${cls}Controller],\n      providers: [${cls}Service],\n    }).compile();\n\n    controller = module.get<${cls}Controller>(${cls}Controller);\n  });\n\n  it('should be defined', () => {\n    expect(controller).toBeDefined();\n  });\n});\n`
+            });
+            files.push({
+                path: `src/${name}/${name}.service.spec.ts`,
+                content: `import { Test, TestingModule } from '@nestjs/testing';\nimport { ${cls}Service } from './${name}.service';\n\ndescribe('${cls}Service', () => {\n  let service: ${cls}Service;\n\n  beforeEach(async () => {\n    const module: TestingModule = await Test.createTestingModule({\n      providers: [${cls}Service],\n    }).compile();\n\n    service = module.get<${cls}Service>(${cls}Service);\n  });\n\n  it('should be defined', () => {\n    expect(service).toBeDefined();\n  });\n});\n`
+            });
+            lines.push(`CREATE src/${name}/${name}.controller.spec.ts`);
+        }
+
         lines.push(`CREATE src/${name}/${name}.controller.ts`);
+        if (!noSpec) {
+            lines.push(`CREATE src/${name}/${name}.service.spec.ts`);
+        }
         lines.push(`CREATE src/${name}/${name}.service.ts`);
         lines.push(`CREATE src/${name}/dto/create-${name}.dto.ts`);
         lines.push(`CREATE src/${name}/dto/update-${name}.dto.ts`);
         lines.push(`CREATE src/${name}/entities/${name}.entity.ts`);
+
+        this._createFiles(files);
         this._updateAppModule(name, cls);
         lines.push(`UPDATE src/app.module.ts`);
         this._out(lines.join('\n'));
@@ -174,11 +219,17 @@ class NestCLI {
                 return trimmed ? `${start}${items.trim()}, ${className}` : `${start}${className}`;
             });
         } else {
-            // Array doesn't exist, inject it into @Module({
-            const moduleRegex = /(@Module\s*\(\s*\{)/;
-            // Only inject if it doesn't already have it (naive check just in case)
-            if (!content.includes(`${arrayName}:`)) {
-                content = content.replace(moduleRegex, `$1 ${arrayName}: [${className}], `);
+            // Check if it's empty @Module({})
+            const emptyModuleRegex = /@Module\(\{\}\)/;
+            if (emptyModuleRegex.test(content)) {
+                content = content.replace(emptyModuleRegex, `@Module({\n  ${arrayName}: [\n    ${className}\n  ]\n})`);
+            } else {
+                // Array doesn't exist, inject it into @Module({
+                const moduleRegex = /(@Module\s*\(\s*\{)/;
+                // Only inject if it doesn't already have it (naive check just in case)
+                if (!content.includes(`${arrayName}:`)) {
+                    content = content.replace(moduleRegex, `$1\n  ${arrayName}: [${className}],`);
+                }
             }
         }
         

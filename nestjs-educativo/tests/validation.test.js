@@ -29,7 +29,7 @@ describe('API de Validación de Ejercicios', () => {
         }
         expect(result.correcto).toBe(true);
       }
-    }, 30000); // Timeout extendido porque validar varios scripts toma tiempo
+    }, 60000); // Timeout extendido porque validar varios scripts toma tiempo
   });
 
   describe('Comportamiento de Error', () => {
