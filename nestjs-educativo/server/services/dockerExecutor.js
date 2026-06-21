@@ -6,7 +6,7 @@ const path = require('path');
 const execPromise = util.promisify(exec);
 
 const EXECUTOR_IMAGE = 'nestjs-executor';
-const SCRIPT_TIMEOUT = 10000;
+const SCRIPT_TIMEOUT = 20000;
 const SCRIPTS_DIR = path.join(require('os').tmpdir(), 'nestjs-educativo-temp');
 
 /**
