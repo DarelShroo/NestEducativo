@@ -31,7 +31,7 @@ const exercises = [
     ],
     "hints_es": ["Debes agregar `\"start:dev\": \"nest start --watch\"` dentro del objeto `\"scripts\"` en `package.json`."],
     "hints_en": ["Add start:dev to scripts."],
-    "test_script": "import * as fs from 'fs';\n\nasync function test() {\n  try {\n    const content = fs.readFileSync('./package.json', 'utf8');\n    const json = JSON.parse(content);\n    if (!json.scripts || json.scripts['start:dev'] !== 'nest start --watch') {\n      throw new Error('El script start:dev no está configurado correctamente en package.json');\n    }\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+    "test_script": "import * as fs from 'fs';\n\nasync function test() {\n  try {\n    const content = fs.readFileSync('./package.json', 'utf8');\n    const json = JSON.parse(content);\n    if (!json.scripts || !json.scripts['start:dev'] || json.scripts['start:dev'].trim() !== 'nest start --watch') {\n      throw new Error('El script start:dev no está configurado correctamente en package.json. Found: ' + (json.scripts ? json.scripts['start:dev'] : 'no scripts') + ' Raw: ' + content);\n    }\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
   },
   {
     "id": 2,

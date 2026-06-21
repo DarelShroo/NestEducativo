@@ -861,11 +861,15 @@ function markdownToHTML(markdown) {
         });
 
         setTimeout(() => {
-            document.querySelectorAll('.nivel-readme pre code').forEach((block) => {
-                if (typeof hljs !== 'undefined') {
+            document.querySelectorAll('.nivel-readme pre code, .ejercicio-descripcion pre code').forEach((block) => {
+                if (typeof hljs !== 'undefined' && !block.dataset.highlighted && !block.classList.contains('language-mermaid')) {
                     hljs.highlightElement(block);
                 }
             });
+            
+            if (typeof mermaid !== 'undefined') {
+                try { mermaid.run({ querySelector: '.language-mermaid' }); } catch(e) {}
+            }
             
             // Intercept anchor links for smooth scrolling within the container
             document.querySelectorAll('.nivel-readme a[href^="#"]').forEach(anchor => {
