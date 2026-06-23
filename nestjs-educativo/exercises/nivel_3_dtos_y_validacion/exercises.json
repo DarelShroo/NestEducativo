@@ -1,0 +1,444 @@
+[
+  {
+    "id": 1,
+    "title_es": "DTOs e Interfaces",
+    "title_en": "DTOs and Interfaces",
+    "difficulty": "medium",
+    "concepts": [
+      "DTOs",
+      "Interfaces"
+    ],
+    "description_es": "Las **Interfaces** tipan objetos en memoria, y los **DTOs** tipan datos que viajan por la red.\n\n### Instrucciones\n1. Crea `src/cars/interfaces/car.interface.ts`. Exporta una interface `Car` con `id: string` y `brand: string`.\n2. Crea `src/cars/dto/create-car.dto.ts`. Exporta una clase `CreateCarDto` con solo `brand: string`.\n3. En `cars.controller.ts`, en tu método `@Post()`, usa `CreateCarDto` como tipo del cuerpo: `@Body() createCarDto: CreateCarDto`.",
+    "description_en": "Create interfaces and DTOs to define structure.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
+      },
+      {
+        "path": "src/cars/interfaces/car.interface.ts",
+        "content": "export interface Car { id: string; brand: string; }\n"
+      },
+      {
+        "path": "src/cars/dto/create-car.dto.ts",
+        "content": "export class CreateCarDto { brand: string; }\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Post, Body } from '@nestjs/common';\nimport { CreateCarDto } from './dto/create-car.dto';\n\n@Controller('cars')\nexport class CarsController {\n  @Post()\n  createCar(@Body() createCarDto: CreateCarDto) {\n    return 'Car created';\n  }\n}\n"
+      }
+    ],
+    "hints_es": [
+      "Crea las carpetas `interfaces` y `dto` si es necesario."
+    ],
+    "hints_en": [
+      "Create interface and DTO and type the @Body."
+    ],
+    "test_script": "import * as fs from 'fs';\nasync function test() {\n  try {\n    if (!fs.existsSync('./src/cars/interfaces/car.interface.ts')) throw new Error('[VALIDATION_ERROR] No se encontró car.interface.ts');\n    if (!fs.existsSync('./src/cars/dto/create-car.dto.ts')) throw new Error('[VALIDATION_ERROR] No se encontró create-car.dto.ts');\n    const code = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8');\n    if (!code.includes('CreateCarDto')) throw new Error('[VALIDATION_ERROR] No estás usando el DTO en el controlador.');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+  },
+  {
+    "id": 2,
+    "title_es": "Pipes: ParseUUIDPipe",
+    "title_en": "Built-in Pipes: ParseUUIDPipe",
+    "difficulty": "medium",
+    "concepts": [
+      "Pipes",
+      "Validación",
+      "UUID"
+    ],
+    "description_es": "El `ParseUUIDPipe` valida que el ID proporcionado sea un UUID v4 válido, bloqueando IDs incorrectos.\n\n### Instrucciones\n1. En `src/cars/cars.controller.ts`, importa `ParseUUIDPipe` desde `@nestjs/common`.\n2. Modifica un endpoint `@Delete(':id')` para usar `@Param('id', ParseUUIDPipe) id: string`.\n3. Retorna `'Coche borrado ' + id`.",
+    "description_en": "Use ParseUUIDPipe to validate parameters.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
+      },
+      {
+        "path": "src/cars/interfaces/car.interface.ts",
+        "content": "export interface Car { id: string; brand: string; }\n"
+      },
+      {
+        "path": "src/cars/dto/create-car.dto.ts",
+        "content": "export class CreateCarDto { brand: string; }\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Delete(':id')\n  deleteCar(@Param('id', ParseUUIDPipe) id: string) {\n    return 'Coche borrado ' + id;\n  }\n}\n"
+      }
+    ],
+    "hints_es": [
+      "Añade `ParseUUIDPipe` al `@Param()`."
+    ],
+    "hints_en": [
+      "Apply ParseUUIDPipe."
+    ],
+    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport { CarsController } from './src/cars/cars.controller';\nimport * as fs from 'fs';\n\nasync function test() {\n  try {\n    const src = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8');\n    if (!src.includes('ParseUUIDPipe')) throw new Error('[VALIDATION_ERROR] No estás usando ParseUUIDPipe');\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    const ctrl: any = moduleRef.get(CarsController, { strict: false });\n    let passed = false;\n    if(ctrl.deleteCar('abc-123') === 'Coche borrado abc-123') passed = true;\n    if(!passed) throw new Error('[VALIDATION_ERROR] El método no devuelve el formato esperado.');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+  },
+  {
+    "id": 3,
+    "title_es": "Validación: class-validator y class-transformer",
+    "title_en": "Validation: class-validator",
+    "difficulty": "hard",
+    "concepts": [
+      "class-validator",
+      "Decoradores",
+      "Validación"
+    ],
+    "description_es": "Aplicaremos validación a nuestros DTOs con decoradores.\n\n### Instrucciones\n1. En `src/cars/dto/create-car.dto.ts`, importa `IsString` y `MinLength` desde `class-validator`.\n2. Aplica `@IsString()` y `@MinLength(3)` a la propiedad `brand: string`.\n3. Añade una propiedad `color?: string` y aplícale `@IsOptional()` y `@IsString()`.",
+    "description_en": "Apply validation decorators to DTO.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
+      },
+      {
+        "path": "src/cars/interfaces/car.interface.ts",
+        "content": "export interface Car { id: string; brand: string; }\n"
+      },
+      {
+        "path": "src/cars/dto/create-car.dto.ts",
+        "content": "import { IsString, MinLength, IsOptional } from 'class-validator';\nexport class CreateCarDto {\n  @IsString()\n  @MinLength(3)\n  brand: string;\n\n  @IsOptional()\n  @IsString()\n  color?: string;\n}\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Delete(':id')\n  deleteCar(@Param('id', ParseUUIDPipe) id: string) {\n    return 'Coche borrado ' + id;\n  }\n}\n"
+      }
+    ],
+    "hints_es": [
+      "Importa desde 'class-validator'."
+    ],
+    "hints_en": [
+      "Import from class-validator."
+    ],
+    "test_script": "import * as fs from 'fs';\nasync function test() {\n  try {\n    const code = fs.readFileSync('./src/cars/dto/create-car.dto.ts', 'utf8');\n    if (!code.includes('IsString') || !code.includes('MinLength')) throw new Error('[VALIDATION_ERROR] Faltan los decoradores IsString o MinLength');\n    if (!code.includes('IsOptional') || !code.includes('color')) throw new Error('[VALIDATION_ERROR] Falta el decorador IsOptional o la propiedad color');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+  },
+  {
+    "id": 4,
+    "title_es": "ValidationPipe a Fondo",
+    "title_en": "ValidationPipe in depth",
+    "difficulty": "hard",
+    "concepts": [
+      "ValidationPipe",
+      "whitelist",
+      "forbidNonWhitelisted"
+    ],
+    "description_es": "El `ValidationPipe` hace que `class-validator` funcione a nivel global y puede purgar campos no deseados.\n\n### Instrucciones\n1. Abre `src/main.ts`.\n2. Importa `ValidationPipe` de `@nestjs/common`.\n3. Antes de `await app.listen(3000)`, añade `app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));`.",
+    "description_en": "Apply global ValidationPipe.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\nimport { ValidationPipe } from '@nestjs/common';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  app.useGlobalPipes(new ValidationPipe({\n    whitelist: true,\n    forbidNonWhitelisted: true\n  }));\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
+      },
+      {
+        "path": "src/cars/interfaces/car.interface.ts",
+        "content": "export interface Car { id: string; brand: string; }\n"
+      },
+      {
+        "path": "src/cars/dto/create-car.dto.ts",
+        "content": "import { IsString, MinLength, IsOptional } from 'class-validator';\nexport class CreateCarDto {\n  @IsString()\n  @MinLength(3)\n  brand: string;\n\n  @IsOptional()\n  @IsString()\n  color?: string;\n}\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Delete, Param, ParseUUIDPipe } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Delete(':id')\n  deleteCar(@Param('id', ParseUUIDPipe) id: string) {\n    return 'Coche borrado ' + id;\n  }\n}\n"
+      }
+    ],
+    "hints_es": [
+      "Asegúrate de poner `{ whitelist: true, forbidNonWhitelisted: true }`."
+    ],
+    "hints_en": [
+      "Use app.useGlobalPipes()."
+    ],
+    "test_script": "import * as fs from 'fs';\nasync function test() {\n  try {\n    const code = fs.readFileSync('./src/main.ts', 'utf8');\n    if (!code.includes('ValidationPipe')) throw new Error('[VALIDATION_ERROR] No estás usando ValidationPipe');\n    if (!code.includes('whitelist') || !code.includes('forbidNonWhitelisted')) throw new Error('[VALIDATION_ERROR] Faltan las propiedades de configuración whitelist y forbidNonWhitelisted');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+  },
+  {
+    "id": 5,
+    "title_es": "Organización: Barrel Files",
+    "title_en": "Organization: Barrel Files",
+    "difficulty": "facil",
+    "concepts": [
+      "Barrel Files",
+      "Export"
+    ],
+    "description_es": "Los **Barrel Files** (`index.ts`) agrupan exportaciones para limpiar los imports.\n\n### Instrucciones\n1. Crea el archivo `src/cars/dto/index.ts`.\n2. Exporta el DTO con `export * from './create-car.dto';`.\n3. Abre `src/cars/cars.controller.ts` y cambia la importación del DTO para que sea desde `./dto` (Nest resolverá automáticamente el index.ts).",
+    "description_en": "Create a Barrel file.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\nimport { ValidationPipe } from '@nestjs/common';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  app.useGlobalPipes(new ValidationPipe({\n    whitelist: true,\n    forbidNonWhitelisted: true\n  }));\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
+      },
+      {
+        "path": "src/cars/interfaces/car.interface.ts",
+        "content": "export interface Car { id: string; brand: string; }\n"
+      },
+      {
+        "path": "src/cars/dto/create-car.dto.ts",
+        "content": "import { IsString, MinLength, IsOptional } from 'class-validator';\nexport class CreateCarDto {\n  @IsString()\n  @MinLength(3)\n  brand: string;\n\n  @IsOptional()\n  @IsString()\n  color?: string;\n}\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller } from '@nestjs/common';\nimport { CreateCarDto } from './dto';\n\n@Controller('cars')\nexport class CarsController {}\n"
+      },
+      {
+        "path": "src/cars/dto/index.ts",
+        "content": "export * from './create-car.dto';\n"
+      }
+    ],
+    "hints_es": [
+      "Crea un index.ts que use `export * from`."
+    ],
+    "hints_en": [
+      "Create index.ts barrel."
+    ],
+    "test_script": "import * as fs from 'fs';\nasync function test() {\n  try {\n    if (!fs.existsSync('./src/cars/dto/index.ts')) throw new Error('[VALIDATION_ERROR] No se encontró el index.ts en la carpeta dto');\n    const code = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8');\n    if (code.includes('create-car.dto')) throw new Error('[VALIDATION_ERROR] Todavía estás importando el archivo específico en vez del barrel file');\n    if (!code.includes(\"./dto\")) throw new Error('[VALIDATION_ERROR] Debes importar desde \\\"./dto\\\"');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+  },
+  {
+    "id": 6,
+    "title_es": "Desafío Final: Pet Adoption API (Validación)",
+    "title_en": "Final Challenge: Pet Adoption API (Validation)",
+    "difficulty": "muy_dificil",
+    "concepts": [
+      "ValidationPipe",
+      "UUID",
+      "class-validator",
+      "DTOs",
+      "Barrel Files"
+    ],
+    "description_es": "¡Desafío final del Nivel 3! Construirás un Sistema de Adopción de Mascotas (Pet Adoption API) con validaciones rigurosas y diferentes tipos de datos.\n\n### Requisitos:\n1. **Scaffolding**: Usa `nest g res pets --no-spec` para generar todo.\n2. **UUID**: En `pet.entity.ts`, la entidad `Pet` debe tener un `id: string`. Usa `ParseUUIDPipe` (v4) en el controlador para los `@Param('id')` y genera el id con `uuid()` en el servicio.\n3. **DTOs**: Crea `CreatePetDto` con `name` (IsString, MinLength 2), `species` (IsString, IsOptional), `age` (IsNumber, IsPositive). Crea `UpdatePetDto` usando `PartialType(CreatePetDto)`.\n4. **ValidationPipe**: En `main.ts`, aplica `ValidationPipe` global con `whitelist` y `forbidNonWhitelisted` en `true`.\n5. **Barrel Files**: Exporta los DTOs usando un `index.ts` en la carpeta `dto`.",
+    "description_en": "Design and implement a complete REST API to manage Pet Adoptions using UUIDs and full validation.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\nimport { ValidationPipe } from '@nestjs/common';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  app.useGlobalPipes(new ValidationPipe({\n    whitelist: true,\n    forbidNonWhitelisted: true\n  }));\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { PetsModule } from './pets/pets.module';\n\n@Module({ imports: [PetsModule] })\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/pets/pets.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { PetsService } from './pets.service';\nimport { PetsController } from './pets.controller';\n\n@Module({ controllers: [PetsController], providers: [PetsService] })\nexport class PetsModule {}\n"
+      },
+      {
+        "path": "src/pets/entities/pet.entity.ts",
+        "content": "export class Pet {\n  id: string;\n  name: string;\n  species?: string;\n  age: number;\n}\n"
+      },
+      {
+        "path": "src/pets/dto/create-pet.dto.ts",
+        "content": "import { IsString, MinLength, IsOptional, IsNumber, IsPositive } from 'class-validator';\nexport class CreatePetDto {\n  @IsString()\n  @MinLength(2)\n  name: string;\n\n  @IsOptional()\n  @IsString()\n  species?: string;\n\n  @IsNumber()\n  @IsPositive()\n  age: number;\n}\n"
+      },
+      {
+        "path": "src/pets/dto/update-pet.dto.ts",
+        "content": "import { PartialType } from '@nestjs/mapped-types';\nimport { CreatePetDto } from './create-pet.dto';\nexport class UpdatePetDto extends PartialType(CreatePetDto) {}\n"
+      },
+      {
+        "path": "src/pets/dto/index.ts",
+        "content": "export * from './create-pet.dto';\nexport * from './update-pet.dto';\n"
+      },
+      {
+        "path": "src/pets/pets.service.ts",
+        "content": "import { Injectable, NotFoundException } from '@nestjs/common';\nimport { CreatePetDto } from './dto/create-pet.dto';\nimport { UpdatePetDto } from './dto/update-pet.dto';\nimport { Pet } from './entities/pet.entity';\nimport { v4 as uuid } from 'uuid';\n\n@Injectable()\nexport class PetsService {\n  private pets: Pet[] = [];\n\n  create(createPetDto: CreatePetDto) {\n    const newPet: Pet = {\n      id: uuid(),\n      name: createPetDto.name,\n      species: createPetDto.species,\n      age: createPetDto.age,\n    };\n    this.pets.push(newPet);\n    return newPet;\n  }\n\n  findAll() { return this.pets; }\n\n  findOne(id: string) {\n    const pet = this.pets.find(p => p.id === id);\n    if (!pet) throw new NotFoundException('Pet not found');\n    return pet;\n  }\n\n  update(id: string, updatePetDto: UpdatePetDto) {\n    const pet = this.findOne(id);\n    if (updatePetDto.name !== undefined) pet.name = updatePetDto.name;\n    if (updatePetDto.species !== undefined) pet.species = updatePetDto.species;\n    if (updatePetDto.age !== undefined) pet.age = updatePetDto.age;\n    return pet;\n  }\n\n  remove(id: string) {\n    const index = this.pets.findIndex(p => p.id === id);\n    if (index === -1) throw new NotFoundException('Pet not found');\n    const removed = this.pets.splice(index, 1);\n    return removed[0];\n  }\n}\n"
+      },
+      {
+        "path": "src/pets/pets.controller.ts",
+        "content": "import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';\nimport { PetsService } from './pets.service';\nimport { CreatePetDto, UpdatePetDto } from './dto';\n\n@Controller('pets')\nexport class PetsController {\n  constructor(private readonly petsService: PetsService) {}\n\n  @Post()\n  create(@Body() createPetDto: CreatePetDto) {\n    return this.petsService.create(createPetDto);\n  }\n\n  @Get()\n  findAll() {\n    return this.petsService.findAll();\n  }\n\n  @Get(':id')\n  findOne(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {\n    return this.petsService.findOne(id);\n  }\n\n  @Patch(':id')\n  update(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string, @Body() updatePetDto: UpdatePetDto) {\n    return this.petsService.update(id, updatePetDto);\n  }\n\n  @Delete(':id')\n  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {\n    return this.petsService.remove(id);\n  }\n}\n"
+      }
+    ],
+    "hints_es": [
+      "Para generar un UUID v4 usa: `import { v4 as uuid } from 'uuid'; const id = uuid();`",
+      "No olvides ParseUUIDPipe en `@Param('id')`.",
+      "Crea el index.ts en la carpeta dto."
+    ],
+    "hints_en": [
+      "Apply ParseUUIDPipe on GET, PATCH, and DELETE."
+    ],
+    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport { NotFoundException } from '@nestjs/common';\nimport * as fs from 'fs';\n\nasync function test() {\n  try {\n    if (!fs.existsSync('./src/pets/pets.controller.ts')) throw new Error('[VALIDATION_ERROR] Falta pets.controller.ts');\n    if (!fs.existsSync('./src/pets/pets.service.ts')) throw new Error('[VALIDATION_ERROR] Falta pets.service.ts');\n    if (!fs.existsSync('./src/pets/dto/create-pet.dto.ts')) throw new Error('[VALIDATION_ERROR] Falta create-pet.dto.ts');\n    if (!fs.existsSync('./src/pets/dto/index.ts')) throw new Error('[VALIDATION_ERROR] Falta index.ts en la carpeta dto');\n    \n    const controllerCode = fs.readFileSync('./src/pets/pets.controller.ts', 'utf8');\n    if (!controllerCode.includes('ParseUUIDPipe')) throw new Error('[VALIDATION_ERROR] Debes usar ParseUUIDPipe en el controlador');\n    if (!controllerCode.includes('./dto')) throw new Error('[VALIDATION_ERROR] Debes usar el Barrel File para importar los DTOs en el controlador');\n    \n    const mainCode = fs.readFileSync('./src/main.ts', 'utf8');\n    if (!mainCode.includes('ValidationPipe')) throw new Error('[VALIDATION_ERROR] Debes configurar el ValidationPipe global en main.ts');\n    \n    const dtoCode = fs.readFileSync('./src/pets/dto/create-pet.dto.ts', 'utf8');\n    if (!dtoCode.includes('IsString') || !dtoCode.includes('MinLength') || !dtoCode.includes('IsNumber') || !dtoCode.includes('IsPositive')) throw new Error('[VALIDATION_ERROR] Faltan validadores (IsString, IsNumber, IsPositive) en el DTO');\n\n    const { PetsController } = await import('./src/pets/pets.controller');\n    const { PetsService } = await import('./src/pets/pets.service');\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    \n    let controller: any = moduleRef.get(PetsController, { strict: false });\n    let service: any = moduleRef.get(PetsService, { strict: false });\n    \n    const newPetPayload = { name: 'Firulais', species: 'Dog', age: 3 };\n    const createdPet = await controller.create(newPetPayload);\n    if (!createdPet || typeof createdPet.id !== 'string' || createdPet.name !== 'Firulais') {\n      throw new Error('[VALIDATION_ERROR] create() no devolvió el objeto correcto o no generó un ID string (UUID)');\n    }\n\n    let threwNotFound = false;\n    try {\n      await controller.findOne('abcd-efgh');\n    } catch (e: any) {\n      if (e instanceof NotFoundException) threwNotFound = true;\n    }\n    if (!threwNotFound) throw new Error('[VALIDATION_ERROR] findOne con ID inválido debe lanzar NotFoundException');\n\n    console.log('Test pasado correctamente');\n  } catch (e: any) {\n    throw e;\n  }\n}\ntest();"
+  }
+]

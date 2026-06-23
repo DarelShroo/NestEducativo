@@ -1,0 +1,6 @@
+node_modules
+temp_scripts
+playwright-report
+test-results
+dist
+exercises.json

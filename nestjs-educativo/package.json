@@ -1,41 +1,46 @@
 {
-    "name": "nestjs-educativo",
-    "version": "1.0.0",
-    "description": "Plataforma educativa interactiva para aprender NestJS y TypeScript",
-    "main": "server/server.js",
-    "scripts": {
-        "start": "nodemon server/server.js",
-        "dev": "nodemon server/server.js",
-        "test": "vitest run tests/",
-        "test:watch": "vitest tests/"
-    },
-    "keywords": [
-        "nestjs",
-        "typescript",
-        "educativo",
-        "aprendizaje"
-    ],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "@nestjs/common": "^11.1.27",
-        "@nestjs/core": "^11.1.27",
-        "@nestjs/mapped-types": "^2.1.1",
-        "@nestjs/platform-express": "^11.1.27",
-        "@nestjs/testing": "^11.1.27",
-        "cors": "^2.8.5",
-        "dotenv": "^16.0.3",
-        "express": "^4.18.2",
-        "reflect-metadata": "^0.2.2",
-        "rxjs": "^7.8.2"
-    },
-    "devDependencies": {
-        "@playwright/test": "^1.61.0",
-        "@types/node": "^26.0.0",
-        "axios": "^1.18.0",
-        "nodemon": "^3.0.1",
-        "tsx": "^4.22.4",
-        "typescript": "^6.0.3",
-        "vitest": "^4.1.9"
-    }
+  "name": "nestjs-educativo",
+  "version": "1.0.0",
+  "description": "Plataforma educativa interactiva para aprender NestJS y TypeScript",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "nodemon server/server.js",
+    "dev": "nodemon server/server.js",
+    "test": "vitest run tests/",
+    "test:watch": "vitest tests/",
+    "format": "prettier --write \"**/*.{js,ts,json,md,html,css}\""
+  },
+  "keywords": [
+    "nestjs",
+    "typescript",
+    "educativo",
+    "aprendizaje"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@nestjs/common": "^11.1.27",
+    "@nestjs/core": "^11.1.27",
+    "@nestjs/mapped-types": "^2.1.1",
+    "@nestjs/platform-express": "^11.1.27",
+    "@nestjs/testing": "^11.1.27",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "@types/node": "^26.0.0",
+    "axios": "^1.18.0",
+    "nodemon": "^3.0.1",
+    "prettier": "^3.8.4",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
 }

@@ -9,7 +9,10 @@ describe('API de Validación de Ejercicios', () => {
 
   beforeAll(() => {
     // Cargamos los ejercicios directamente del JSON
-    const exercisesPath = path.resolve(__dirname, '../exercises/nivel_1_typescript_intro/exercises.json');
+    const exercisesPath = path.resolve(
+      __dirname,
+      '../exercises/nivel_1_typescript_intro/exercises.json'
+    );
     exercises = JSON.parse(fs.readFileSync(exercisesPath, 'utf8'));
   });
 
@@ -20,10 +23,10 @@ describe('API de Validación de Ejercicios', () => {
         const response = await fetch(`${API_URL}/nivel/1/ejercicio/${ex.id}/validar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ script: ex.solution_script })
+          body: JSON.stringify({ script: ex.solution_script }),
         });
         const result = await response.json();
-        
+
         if (!result.correcto) {
           console.error(`Failed at exercise ${ex.id} with errors: ${result.errores}`);
         }
@@ -35,7 +38,10 @@ describe('API de Validación de Ejercicios', () => {
   describe('Soluciones Correctas del Nivel 2', () => {
     let level2Exercises = [];
     beforeAll(() => {
-      const exercisesPath = path.resolve(__dirname, '../exercises/nivel_2_conceptos_nestjs/exercises.json');
+      const exercisesPath = path.resolve(
+        __dirname,
+        '../exercises/nivel_2_conceptos_nestjs/exercises.json'
+      );
       level2Exercises = JSON.parse(fs.readFileSync(exercisesPath, 'utf8'));
     });
 
@@ -52,12 +58,47 @@ describe('API de Validación de Ejercicios', () => {
         const response = await fetch(`${API_URL}/nivel/2/ejercicio/${ex.id}/validar`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ files: filesPayload })
+          body: JSON.stringify({ files: filesPayload }),
         });
         const result = await response.json();
-        
+
         if (!result.correcto) {
           console.error(`Failed at level 2 exercise ${ex.id} with errors: ${result.errores}`);
+        }
+        expect(result.correcto).toBe(true);
+      }
+    }, 90000);
+  });
+
+  describe('Soluciones Correctas del Nivel 3', () => {
+    let level3Exercises = [];
+    beforeAll(() => {
+      const exercisesPath = path.resolve(
+        __dirname,
+        '../exercises/nivel_3_dtos_y_validacion/exercises.json'
+      );
+      level3Exercises = JSON.parse(fs.readFileSync(exercisesPath, 'utf8'));
+    });
+
+    it('debería validar exitosamente todas las soluciones correctas del nivel 3', async () => {
+      for (const ex of level3Exercises) {
+        const filesPayload = {};
+        for (const file of ex.files || []) {
+          filesPayload[file.path] = file.content;
+        }
+        for (const file of ex.solution_files || []) {
+          filesPayload[file.path] = file.content;
+        }
+
+        const response = await fetch(`${API_URL}/nivel/3/ejercicio/${ex.id}/validar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ files: filesPayload }),
+        });
+        const result = await response.json();
+
+        if (!result.correcto) {
+          console.error(`Failed at level 3 exercise ${ex.id} with errors: ${result.errores}`);
         }
         expect(result.correcto).toBe(true);
       }
@@ -69,10 +110,10 @@ describe('API de Validación de Ejercicios', () => {
       const response = await fetch(`${API_URL}/nivel/1/ejercicio/1/validar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script: "let a: number = 'hello';" })
+        body: JSON.stringify({ script: "let a: number = 'hello';" }),
       });
       const result = await response.json();
-      
+
       expect(result.correcto).toBe(false);
       expect(result.errores).toContain("Type 'string' is not assignable to type 'number'");
     });
@@ -81,10 +122,10 @@ describe('API de Validación de Ejercicios', () => {
       const response = await fetch(`${API_URL}/nivel/1/ejercicio/1/validar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ script: "let a: number = " })
+        body: JSON.stringify({ script: 'let a: number = ' }),
       });
       const result = await response.json();
-      
+
       expect(result.correcto).toBe(false);
       expect(result.errores.length).toBeGreaterThan(0);
     });

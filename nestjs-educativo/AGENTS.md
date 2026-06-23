@@ -10,14 +10,14 @@ Este documento resume las directrices fundamentales, convenciones de arquitectur
 
 ### Stack Tecnológico
 
-| Capa | Tecnología |
-|------|-----------|
-| **Frontend** | HTML + Vanilla JS + CSS (SPA monolítica en `public/`) |
-| **Backend** | Node.js + Express (`server/`) |
-| **Ejecución de código** | TypeScript compilado + `ts-node` en directorio temporal del sistema |
-| **Contenedorización** | Docker + Docker Compose |
-| **Tests** | Vitest (`tests/validation.test.js`) |
-| **Generación de ejercicios** | Script Node.js (`generate-exercises.js`) |
+| Capa                         | Tecnología                                                          |
+| ---------------------------- | ------------------------------------------------------------------- |
+| **Frontend**                 | HTML + Vanilla JS + CSS (SPA monolítica en `public/`)               |
+| **Backend**                  | Node.js + Express (`server/`)                                       |
+| **Ejecución de código**      | TypeScript compilado + `ts-node` en directorio temporal del sistema |
+| **Contenedorización**        | Docker + Docker Compose                                             |
+| **Tests**                    | Vitest (`tests/validation.test.js`)                                 |
+| **Generación de ejercicios** | Script Node.js (`generate-exercises.js`)                            |
 
 ### Estructura del Proyecto
 
@@ -94,11 +94,11 @@ src/
 
 Los comandos generadores del simulador (`public/js/nest-cli.js`) deben replicar fielmente:
 
-| Comando | Genera | Registra en |
-|---------|--------|-------------|
-| `nest g mo courses` | `src/courses/courses.module.ts` | `AppModule.imports[]` |
-| `nest g co courses --no-spec` | `src/courses/courses.controller.ts` | `CoursesModule.controllers[]` |
-| `nest g s courses --no-spec` | `src/courses/courses.service.ts` | `CoursesModule.providers[]` |
+| Comando                        | Genera                                          | Registra en                   |
+| ------------------------------ | ----------------------------------------------- | ----------------------------- |
+| `nest g mo courses`            | `src/courses/courses.module.ts`                 | `AppModule.imports[]`         |
+| `nest g co courses --no-spec`  | `src/courses/courses.controller.ts`             | `CoursesModule.controllers[]` |
+| `nest g s courses --no-spec`   | `src/courses/courses.service.ts`                | `CoursesModule.providers[]`   |
 | `nest g res courses --no-spec` | Módulo + Controlador + Servicio + DTOs + Entity | Todo registrado correctamente |
 
 **Regla de `--no-spec`:** No se generan archivos `.spec.ts` cuando se usa este flag.
@@ -118,6 +118,7 @@ generate-exercises.js  →  exercises/nivel_2_conceptos_nestjs/exercises.json
 ```
 
 **Después de cada cambio en `generate-exercises.js`, SIEMPRE ejecutar:**
+
 ```bash
 node generate-exercises.js
 ```
@@ -166,11 +167,11 @@ Cada ejercicio tiene la siguiente estructura:
 
 ### Niveles de Dificultad y Colores
 
-| Dificultad | Valor en JSON | Color en UI |
-|-----------|---------------|-------------|
-| Fácil | `facil` | Verde |
-| Medio | `medium` | Amarillo |
-| Difícil | `hard` | Rojo |
+| Dificultad  | Valor en JSON | Color en UI       |
+| ----------- | ------------- | ----------------- |
+| Fácil       | `facil`       | Verde             |
+| Medio       | `medium`      | Amarillo          |
+| Difícil     | `hard`        | Rojo              |
 | Muy Difícil | `muy_dificil` | Morado (con glow) |
 
 ---
@@ -231,6 +232,7 @@ Si un ejercicio necesita un paquete que no está en `package.json`, **DEBE añad
 ### Inyección Automática de `reflect-metadata`
 
 El ejecutor inyecta automáticamente `import 'reflect-metadata'` al inicio de:
+
 - `src/main.ts` (para ejercicios de Nivel 2)
 - `test.ts` (para scripts de validación)
 
@@ -238,12 +240,12 @@ El ejecutor inyecta automáticamente `import 'reflect-metadata'` al inicio de:
 
 ### Diferencias entre Nivel 1 y Nivel 2
 
-| Aspecto | Nivel 1 | Nivel 2 |
-|---------|---------|---------|
+| Aspecto               | Nivel 1                               | Nivel 2                                                 |
+| --------------------- | ------------------------------------- | ------------------------------------------------------- |
 | Payload de validación | `{ script: "..." }` (un solo archivo) | `{ files: { "path": "content" } }` (múltiples archivos) |
-| Prefijo de exerciseId | `1_<id>` | `2_<id>` |
-| Test script | Concatenado al final de `main.ts` | Archivo independiente `test.ts` |
-| reflect-metadata | No se inyecta | Se inyecta automáticamente |
+| Prefijo de exerciseId | `1_<id>`                              | `2_<id>`                                                |
+| Test script           | Concatenado al final de `main.ts`     | Archivo independiente `test.ts`                         |
+| reflect-metadata      | No se inyecta                         | Se inyecta automáticamente                              |
 
 ---
 
@@ -289,17 +291,21 @@ test();
 1. **Siempre usar `moduleRef.get(Class, { strict: false })`** para resolver providers. Nunca usar tokens string.
 2. **Los errores lógicos deben prefijarse con `[VALIDATION_ERROR]`** para que el frontend los muestre como mensajes pedagógicos limpios.
 3. **Las comparaciones de listas deben almacenar la longitud en una variable primitiva** antes de mutar:
+
    ```typescript
    const initialLength = initialCourses.length;  // ✅ Correcto
    // ... crear nuevo curso ...
    if (updatedCourses.length <= initialLength)    // ✅ Correcto
-   
+
    // ❌ INCORRECTO: initialCourses.length muta si es referencia al mismo array
    if (updatedCourses.length <= initialCourses.length)
    ```
+
 4. **Verificar NotFoundException con `instanceof`**, no comparando strings de mensaje:
    ```typescript
-   if (e instanceof NotFoundException) { findOneThrew = true; }
+   if (e instanceof NotFoundException) {
+     findOneThrew = true;
+   }
    ```
 5. **Verificar ParseIntPipe por análisis estático** del código fuente del controlador:
    ```typescript
@@ -315,15 +321,15 @@ test();
 
 La aplicación es una SPA monolítica sin framework, organizada en módulos JS:
 
-| Archivo | Responsabilidad |
-|---------|----------------|
-| `app.js` | Controlador principal, navegación, estado global |
-| `editor.js` | Editor de código con resaltado de sintaxis |
-| `file-tree.js` | Explorador de archivos (árbol tipo VS Code) |
-| `nest-cli.js` | Simulador de la CLI de NestJS |
-| `vfs.js` | Virtual File System (almacén en memoria) |
-| `api.js` | Cliente para las llamadas al backend |
-| `ls.js` | Language Server ligero (autocompletado) |
+| Archivo        | Responsabilidad                                  |
+| -------------- | ------------------------------------------------ |
+| `app.js`       | Controlador principal, navegación, estado global |
+| `editor.js`    | Editor de código con resaltado de sintaxis       |
+| `file-tree.js` | Explorador de archivos (árbol tipo VS Code)      |
+| `nest-cli.js`  | Simulador de la CLI de NestJS                    |
+| `vfs.js`       | Virtual File System (almacén en memoria)         |
+| `api.js`       | Cliente para las llamadas al backend             |
+| `ls.js`        | Language Server ligero (autocompletado)          |
 
 ### Reglas del Frontend
 
@@ -338,15 +344,15 @@ La aplicación es una SPA monolítica sin framework, organizada en módulos JS:
 
 ### Endpoints
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| `GET` | `/api/status` | Estado del servidor y contenedor |
-| `GET` | `/api/nivel/:nivel` | Contenido README del nivel |
-| `GET` | `/api/nivel/:nivel/ejercicios` | Lista resumida de ejercicios |
-| `GET` | `/api/nivel/:nivel/ejercicio/:id` | Detalle completo de un ejercicio |
-| `POST` | `/api/nivel/:nivel/ejercicio/:id/validar` | Validar solución del alumno |
-| `POST` | `/api/simulator/http` | Simular petición HTTP contra código del alumno |
-| `GET` | `/health` | Health check |
+| Método | Ruta                                      | Descripción                                    |
+| ------ | ----------------------------------------- | ---------------------------------------------- |
+| `GET`  | `/api/status`                             | Estado del servidor y contenedor               |
+| `GET`  | `/api/nivel/:nivel`                       | Contenido README del nivel                     |
+| `GET`  | `/api/nivel/:nivel/ejercicios`            | Lista resumida de ejercicios                   |
+| `GET`  | `/api/nivel/:nivel/ejercicio/:id`         | Detalle completo de un ejercicio               |
+| `POST` | `/api/nivel/:nivel/ejercicio/:id/validar` | Validar solución del alumno                    |
+| `POST` | `/api/simulator/http`                     | Simular petición HTTP contra código del alumno |
+| `GET`  | `/health`                                 | Health check                                   |
 
 ### Formato de Respuesta de Validación
 
@@ -368,24 +374,29 @@ La aplicación es una SPA monolítica sin framework, organizada en módulos JS:
 Los mensajes mostrados al alumno tras presionar "Validar" deben ser **pedagógicos**:
 
 ### Errores de Compilación (TS/SyntaxError)
+
 Se muestra la traza completa de TypeScript para que el alumno identifique el problema:
+
 ```
 src/courses/courses.service.ts(5,3): error TS2339: Property 'x' does not exist on type 'Y'.
 ```
 
 ### Errores Lógicos (de validación del ejercicio)
+
 Si el error proviene de nuestras aserciones (`[VALIDATION_ERROR]`), la plataforma **limpia y extrae el mensaje amigable**, ocultando rutas internas como `/tmp/nestjs-educativo-temp/...`:
+
 ```
 El CoursesService no está registrado en el módulo.
 ```
 
 ### Implementación en `server/routes/exercises.js`
+
 ```javascript
 if (combinedOutput.includes('error TS') || combinedOutput.includes('SyntaxError')) {
-    errorFinal = combinedOutput.substring(0, 2000);  // Traza completa
+  errorFinal = combinedOutput.substring(0, 2000); // Traza completa
 } else {
-    const errorMatch = combinedOutput.match(/(?:Error|Exception)[^:]*:\s*([^\n]+)/);
-    errorFinal = errorMatch ? errorMatch[1].trim() : combinedOutput.substring(0, 2000);
+  const errorMatch = combinedOutput.match(/(?:Error|Exception)[^:]*:\s*([^\n]+)/);
+  errorFinal = errorMatch ? errorMatch[1].trim() : combinedOutput.substring(0, 2000);
 }
 ```
 
@@ -400,11 +411,11 @@ services:
   web:
     build: .
     container_name: nestjs-educativo
-    ports: ["3001:3001"]
+    ports: ['3001:3001']
     volumes:
-      - ./server:/app/server:rw       # Código del servidor (hot reload)
-      - ./public:/app/public:rw       # Frontend (hot reload)
-      - ./exercises:/app/exercises:ro  # Ejercicios (solo lectura)
+      - ./server:/app/server:rw # Código del servidor (hot reload)
+      - ./public:/app/public:rw # Frontend (hot reload)
+      - ./exercises:/app/exercises:ro # Ejercicios (solo lectura)
     environment:
       - PORT=3001
 ```
@@ -428,11 +439,13 @@ npm test
 ### Cuándo Reconstruir el Contenedor
 
 **OBLIGATORIO reconstruir** (`--build`) cuando:
+
 - Se añade/modifica una dependencia en `package.json`
 - Se modifica el `Dockerfile`
 - Se cambian ejercicios que usan paquetes nuevos
 
 **NO es necesario reconstruir** cuando:
+
 - Se modifica código en `server/` (montado como volumen rw)
 - Se modifica código en `public/` (montado como volumen rw)
 - Se regeneran `exercises.json` (montado como volumen ro, pero necesita restart)
@@ -468,10 +481,10 @@ La validación de soluciones del Nivel 2 debe enviar **TANTO los archivos inicia
 ```javascript
 const filesPayload = {};
 for (const file of ex.files || []) {
-    filesPayload[file.path] = file.content;       // Archivos base primero
+  filesPayload[file.path] = file.content; // Archivos base primero
 }
 for (const file of ex.solution_files || []) {
-    filesPayload[file.path] = file.content;       // Soluciones sobreescriben
+  filesPayload[file.path] = file.content; // Soluciones sobreescriben
 }
 ```
 
@@ -504,25 +517,58 @@ Los tests de validación tienen un timeout de **90 segundos** cada uno debido al
 
 ---
 
+## 11.2 Flujo de Trabajo para Añadir un Nivel Nuevo
+
+Para integrar un nuevo nivel completo en la plataforma educativa, se deben tocar tanto archivos estáticos como lógicos en el backend y frontend. Sigue estos pasos meticulosamente:
+
+1. **Crear el directorio y README del Nivel**:
+   - Crea un directorio en `exercises/nivel_X_nombre_nivel/`.
+   - Añade un archivo `README.md` detallado dentro de esa carpeta con la teoría que fundamenta el nivel. Este contenido será renderizado en la UI.
+2. **Definir los Ejercicios (`generate-exercises.js`)**:
+   - Abre `generate-exercises.js` en la raíz de `nestjs-educativo`.
+   - Crea una constante conteniendo el array de ejercicios (ej. `const exercisesNX = [...]`).
+   - Usa la estructura estándar (id, title_es, difficulty, concepts, description_es, files, solution_files, test_script).
+   - Llama al generador (si requiere dependencias previas `makeCumulative`) y añade `fs.writeFileSync(pathNX, JSON.stringify(exercisesNX...))` al final.
+   - Ejecuta `node generate-exercises.js` para compilar el JSON de metadatos.
+3. **Actualizar el Mapa de Rutas del Backend (`server/routes/exercises.js`)**:
+   - Localiza la variable `nivelMap` en todas las rutas del controlador (por ejemplo `loadExercises`, `loadReadme`, simulación de HTTP, etc.).
+   - Añade el mapeo del nuevo nivel: `X: 'nivel_X_nombre_nivel'`.
+   - Actualiza la comprobación de límites: cambia `nivel < 1 || nivel > Y` a `nivel > X` para evitar lanzar errores HTTP 400.
+4. **Actualizar el Sanitizador de Ejercicios (`server/utils/sanitizer.js`)**:
+   - En la función `validateExerciseId(nivel, id)`, amplía el límite numérico `nivelNum > X`.
+   - Añade el límite de capacidad de ejercicios de dicho nivel en el diccionario `maxExercises = { 1: 30, ..., X: 30 }`.
+5. **Añadir el Nivel a la Interfaz (`public/index.html` y `public/js/app.js`)**:
+   - En `public/index.html`, copia e inserta una tarjeta gráfica `<div class="level-card" data-level="X">` en `<div class="levels-grid">`.
+   - En `public/js/app.js`, actualiza los objetos `nivelNames` que se encuentran en `displayLevelInfo()` y `displayExerciseList()` para incluir la clave `X` y su título.
+6. **Reiniciar y Reconstruir el Entorno**:
+   - Ejecuta `docker compose restart web` para que Nodemon asimile los cambios en Express y en los utilitarios de sanitización.
+
+---
+
 ## 12. Errores Frecuentes y Soluciones
 
 ### `Cannot find module '@nestjs/mapped-types'`
+
 **Causa:** El paquete no está instalado en `node_modules` del contenedor.
 **Solución:** Verificar que está en `package.json` y reconstruir: `docker compose up -d --build`.
 
 ### `Cannot find module './src/app.module'`
+
 **Causa:** Los tests de Nivel 2 no envían los archivos base (`ex.files`) junto con las soluciones.
 **Solución:** Fusionar `ex.files` + `ex.solution_files` en el payload de validación.
 
 ### `initialCourses.length` siempre igual tras crear un curso
+
 **Causa:** JavaScript arrays son referencias. Si `findAll()` retorna la referencia interna, ambas variables apuntan al mismo array mutado.
 **Solución:** Almacenar la longitud como primitivo numérico antes de mutar: `const initialLength = initialCourses.length`.
 
 ### Reinicio infinito de Nodemon
+
 **Causa:** El código del alumno se escribió dentro del directorio del proyecto en vez de `/tmp`.
 **Solución:** Asegurar que `dockerExecutor.js` usa `os.tmpdir()` para el directorio del proyecto temporal.
 
 ### `error TS2307: Cannot find module '...'` en decoradores
+
 **Causa:** `tsconfig.json` no tiene `emitDecoratorMetadata` o `experimentalDecorators` habilitados.
 **Solución:** El `dockerExecutor.js` genera automáticamente el `tsconfig.json` correcto. No modificarlo.
 
@@ -531,11 +577,13 @@ Los tests de validación tienen un timeout de **90 segundos** cada uno debido al
 ## 13. Convenciones de Código
 
 ### Servidor (Node.js/Express)
+
 - CommonJS (`require`/`module.exports`).
 - Logging siempre a través de `server/utils/logger.js`.
 - Sanitización de entrada obligatoria via `server/utils/sanitizer.js`.
 
 ### Ejercicios (TypeScript)
+
 - Siempre respetar la estructura que generaría `nest g res <nombre>`.
 - DTOs en carpeta `dto/`, Entities en carpeta `entities/`.
 - `UpdateDto` siempre hereda de `CreateDto` via `PartialType`.
@@ -544,11 +592,13 @@ Los tests de validación tienen un timeout de **90 segundos** cada uno debido al
 - Siempre lanzar `NotFoundException` cuando no se encuentra un recurso.
 
 ### Frontend (Vanilla JS)
+
 - No usar frameworks (React, Vue, etc.).
 - Modularización via archivos JS separados cargados con `<script>`.
 - Estado del VFS aislado por ejercicio.
 
 ### Git
+
 - Commits en inglés con prefijos convencionales: `feat:`, `fix:`, `refactor:`, `docs:`.
 - No commitear `node_modules/`, `exercises.json` generado se commitea.
 - Antes de cada push: verificar que `npm test` pasa con exit code 0.

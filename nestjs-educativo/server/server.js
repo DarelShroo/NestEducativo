@@ -22,13 +22,13 @@ app.use('/api', exercisesRouter);
 
 // Health check
 app.get('/health', (req, res) => {
-    res.json({ status: 'ok', service: 'nestjs-educativo' });
+  res.json({ status: 'ok', service: 'nestjs-educativo' });
 });
 
 // Start server
 app.listen(PORT, () => {
-    logger.info(`NestJS Educational Platform running on http://localhost:${PORT}`);
-    logger.info('Docker container should be running: nestjs-executor');
+  logger.info(`NestJS Educational Platform running on http://localhost:${PORT}`);
+  logger.info('Docker container should be running: nestjs-executor');
 });
 
 module.exports = app;

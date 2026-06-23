@@ -1,6 +1,6 @@
 # Nivel 1: TypeScript para NestJS - Guía Definitiva y Apuntes del Curso
 
-Bienvenido a esta guía exhaustiva y material de estudio diseñado para dominar TypeScript desde cero, con un enfoque particular en prepararte para el desarrollo profesional con el framework **NestJS**. Este documento no es un simple resumen; es una referencia profunda estructurada para que puedas volver a ella en el futuro y entender el *porqué* detrás de cada concepto.
+Bienvenido a esta guía exhaustiva y material de estudio diseñado para dominar TypeScript desde cero, con un enfoque particular en prepararte para el desarrollo profesional con el framework **NestJS**. Este documento no es un simple resumen; es una referencia profunda estructurada para que puedas volver a ella en el futuro y entender el _porqué_ detrás de cada concepto.
 
 Todos los ejercicios de este nivel están estrictamente basados en esta teoría.
 
@@ -33,6 +33,7 @@ Todos los ejercicios de este nivel están estrictamente basados en esta teoría.
 ## 1. Variables y tipos de datos
 
 ### Tipado Estático vs Inferencia
+
 TypeScript añade "tipos estáticos" a JavaScript. Esto significa que puedes decirle al compilador exactamente qué tipo de dato debe almacenar una variable.
 
 ```ts
@@ -41,17 +42,18 @@ let age: number = 30;
 ```
 
 Sin embargo, TypeScript es lo suficientemente inteligente como para hacer **inferencia de tipos**.
+
 ```ts
 let pokemon = 'Pikachu'; // TS infiere que es de tipo 'string'
 // pokemon = 10; // Error
 ```
 
-| Tipo | Descripción | Ejemplo |
-| :--- | :--- | :--- |
-| `string` | Cadenas de texto. | `'Hola'` |
-| `number` | Números enteros, flotantes. | `10`, `3.14` |
-| `boolean` | Valores lógicos. | `true`, `false` |
-| `any` | **[EVITAR]** Desactiva el tipado estricto. | `let c: any = 'test';` |
+| Tipo      | Descripción                                | Ejemplo                |
+| :-------- | :----------------------------------------- | :--------------------- |
+| `string`  | Cadenas de texto.                          | `'Hola'`               |
+| `number`  | Números enteros, flotantes.                | `10`, `3.14`           |
+| `boolean` | Valores lógicos.                           | `true`, `false`        |
+| `any`     | **[EVITAR]** Desactiva el tipado estricto. | `let c: any = 'test';` |
 
 > **Relación con NestJS:** NestJS depende fuertemente de los tipos para la validación de datos a través de DTOs.
 
@@ -59,7 +61,7 @@ let pokemon = 'Pikachu'; // TS infiere que es de tipo 'string'
 
 ## 2. Template Strings
 
-Los Template Strings son una característica que permite incrustar expresiones y variables dentro de una cadena de texto utilizando *backticks* (\`).
+Los Template Strings son una característica que permite incrustar expresiones y variables dentro de una cadena de texto utilizando _backticks_ (\`).
 
 ```ts
 const name = 'Darel';
@@ -80,23 +82,26 @@ const pokemons: string[] = ['Bulbasaur', 'Charmander'];
 ```
 
 ### Métodos comunes
-* **`push(...)`**: Añade elementos al final.
-* **`map()`**: Crea un nuevo array aplicando una función.
+
+- **`push(...)`**: Añade elementos al final.
+- **`map()`**: Crea un nuevo array aplicando una función.
   ```ts
-  const upper = pokemons.map(p => p.toUpperCase());
+  const upper = pokemons.map((p) => p.toUpperCase());
   ```
-* **`filter()`**: Crea un nuevo array con elementos que pasen la condición.
+- **`filter()`**: Crea un nuevo array con elementos que pasen la condición.
 
 ---
 
 ## 4. Objetos
 
 Un objeto literal es una colección de pares clave-valor.
+
 ```ts
 const pokemon = { id: 1, name: 'Charmander' };
 ```
 
 El spread operator `...` se usa para copias:
+
 ```ts
 const pikachu = { id: 25, name: 'Pikachu' };
 const raichu = { ...pikachu, name: 'Raichu', id: 26 };
@@ -124,7 +129,7 @@ Las clases son la base de la POO. Actúan como moldes.
 
 ```ts
 export class Pokemon {
-  public types = ['fire']; 
+  public types = ['fire'];
 
   constructor(id: number, name: string) {
     console.log('constructor called');
@@ -142,7 +147,7 @@ TypeScript introdujo una forma extremadamente elegante de definir e inicializar 
 class Pokemon {
   constructor(
     public readonly id: number,
-    public name: string,
+    public name: string
   ) {}
 }
 ```
@@ -152,6 +157,7 @@ class Pokemon {
 ## 8. Instanciación de clases
 
 Instanciar significa crear un objeto real:
+
 ```ts
 const charmander = new Pokemon(4, 'Charmander');
 ```
@@ -161,14 +167,19 @@ const charmander = new Pokemon(4, 'Charmander');
 ## 9. Métodos, `this` y Getters
 
 ### La palabra clave `this`
+
 Dentro de una clase, `this` hace referencia a la instancia actual del objeto.
 
 ### Getters (`get`)
+
 Un getter es un método especial que simula ser una propiedad.
 
 ```ts
 class Pokemon {
-  constructor(public id: number, public name: string) {}
+  constructor(
+    public id: number,
+    public name: string
+  ) {}
 
   get imageUrl(): string {
     return `https://pokeapi.com/sprites/${this.id}.png`;
@@ -200,17 +211,18 @@ export class MathHelper {
 ## 11. Programación asíncrona
 
 ### Async / Await
+
 Es azúcar sintáctico sobre las Promesas.
 
 ```ts
 const fetchPokemon = async (): Promise<void> => {
   try {
-    const data = await traerDatosDeInternet(); 
+    const data = await traerDatosDeInternet();
     console.log(data);
   } catch (error) {
     console.error('Error al obtener datos');
   }
-}
+};
 ```
 
 ---
@@ -224,7 +236,7 @@ import axios from 'axios';
 
 const getPokemonInfo = async () => {
   const response = await axios.get('https://pokeapi.co/api/v2/pokemon/1');
-  console.log(response.data.name); 
+  console.log(response.data.name);
 };
 ```
 
@@ -328,6 +340,7 @@ class UserController {}
 ## 19. Cómo se relaciona todo esto con NestJS
 
 NestJS usa fuertemente:
+
 - **Interfaces y DTOs** para validación.
 - **Constructor Simplificado e Inyección de Dependencias (DI)** para estructurar los servicios.
 - **Decoradores** como `@Controller()`, `@Get()`, `@Injectable()`.

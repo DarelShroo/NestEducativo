@@ -1,4 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Car } from './interfaces/cars.interface';
+import { v4 as uuid } from 'uuid';
+import { CreateCarDto } from './dtos/create-car.dto';
+import { UpdateCarDto } from './dtos/update-car.dto';
 
 @Injectable()
 export class CarsService {
@@ -23,5 +27,61 @@ export class CarsService {
 
   // TODO 4 (Opcional): Manipulación de datos
   // Crea los métodos create(), update() y delete() para manipular el arreglo 'cars'.
+  // IMPORTANTE sobre el manejo del ID:
+  // - En el método create(): El cliente no envía el id. Debes generarlo dinámicamente (ej. sumar 1 al id máximo actual o usar un UUID si lo implementas).
+  // - En update() y delete(): Utiliza el id numérico recibido como argumento para identificar qué coche modificar o eliminar.
+
+  private cars: Car[];
+
+  public findAll() {
+    return this.cars;
+  }
+
+  public findOneById(id: string) {
+    const car = this.cars.find(c => c.id === id);
+
+    if (!car) {
+      throw new NotFoundException(`Car with id '${id}' not found`);
+    }
+
+    return car;
+  }
+
+  public create(createCarDto: CreateCarDto) {
+    const newCar: Car = {
+      id: uuid(),
+      ...createCarDto
+    }
+
+    this.cars.push(newCar)
+
+    return this.cars;
+  }
+
+  public update(id: string, updateCarDto: UpdateCarDto) {
+    let carDB = this.findOneById(id);
+    this.cars = this.cars.map(car => {
+      if (car.id === id) {
+        carDB = {
+          ...carDB,
+          ...updateCarDto,
+          id
+        }
+        return carDB
+      }
+      return car
+    });
+    return this.cars;
+  }
+
+  public delete(id: string) {
+    const car = this.findOneById(id);
+    this.cars = this.cars.filter(c => c.id !== id);
+    return this.cars;
+  }
+
+  fillBrandsWithSeedData(cars: Car[]){
+    this.cars = cars;
+  }
 
 }

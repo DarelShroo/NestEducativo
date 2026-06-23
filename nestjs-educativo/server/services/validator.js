@@ -4,61 +4,55 @@
 
 /**
  * Normalizes output by removing extra whitespace and standardizing format
- * @param {string} output 
+ * @param {string} output
  * @returns {string}
  */
 function normalizeOutput(output) {
-    if (!output) return '';
+  if (!output) return '';
 
-    return output
-        .trim()
-        .replace(/\r\n/g, '\n') // Normalize line endings
-        .replace(/\s+/g, ' ') // Collapse multiple spaces
-        .replace(/\( /g, '(') // Remove space after (
-        .replace(/ \)/g, ')') // Remove space before )
-        .replace(/ ,/g, ',') // Remove space before comma
-        .toLowerCase(); // Case insensitive comparison
+  return output
+    .trim()
+    .replace(/\r\n/g, '\n') // Normalize line endings
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .replace(/\( /g, '(') // Remove space after (
+    .replace(/ \)/g, ')') // Remove space before )
+    .replace(/ ,/g, ',') // Remove space before comma
+    .toLowerCase(); // Case insensitive comparison
 }
 
 /**
  * Extracts actual data output from TS's verbose output
- * @param {string} tsOutput 
+ * @param {string} tsOutput
  * @returns {string}
  */
 function extractDataOutput(tsOutput) {
-    if (!tsOutput) return '';
+  if (!tsOutput) return '';
 
-    const lines = tsOutput.split('\n');
-    const dataLines = [];
+  const lines = tsOutput.split('\n');
+  const cleanLines = [];
 
-    let inDataSection = false;
+  for (const line of lines) {
+    const trimmed = line.trim();
 
-    for (const line of lines) {
-        const trimmed = line.trim();
-
-        // Skip metadata lines
-        if (trimmed.startsWith('grunt>') ||
-            trimmed.startsWith('INFO') ||
-            trimmed.startsWith('WARN') ||
-            trimmed.startsWith('DEBUG') ||
-            trimmed.match(/^\d{4}-\d{2}-\d{2}/) || // Timestamp lines
-            trimmed.includes('mapreduce') ||
-            trimmed.includes('node') ||
-            trimmed.includes('Input(s):') ||
-            trimmed.includes('Output(s):') ||
-            trimmed.includes('Counters:') ||
-            trimmed.length === 0) {
-            continue;
-        }
-
-        // Capture data lines (tuples)
-        if (trimmed.startsWith('(') || inDataSection) {
-            dataLines.push(trimmed);
-            inDataSection = true;
-        }
+    // Skip metadata/noise lines
+    if (
+      trimmed.startsWith('Debugger listening on') ||
+      trimmed.startsWith('For help, see:') ||
+      trimmed.includes('ts-node') ||
+      trimmed.length === 0
+    ) {
+      continue;
     }
 
-    return dataLines.join('\n');
+    // Remove stack traces
+    if (trimmed.match(/^\s*at /)) {
+      continue;
+    }
+
+    cleanLines.push(line);
+  }
+
+  return cleanLines.join('\n');
 }
 
 /**
@@ -69,100 +63,100 @@ function extractDataOutput(tsOutput) {
  * @returns {{match: boolean, similarity: number}}
  */
 function compareOutputs(userOutput, expectedOutput, comparisonType = 'fuzzy') {
-    // Extract actual data from TS's verbose output
-    const userData = extractDataOutput(userOutput);
-    const expectedData = expectedOutput.trim();
+  // Extract actual data from TS's verbose output
+  const userData = extractDataOutput(userOutput);
+  const expectedData = expectedOutput.trim();
 
-    // Normalize both outputs
-    const normalizedUser = normalizeOutput(userData);
-    const normalizedExpected = normalizeOutput(expectedData);
+  // Normalize both outputs
+  const normalizedUser = normalizeOutput(userData);
+  const normalizedExpected = normalizeOutput(expectedData);
 
-    if (comparisonType === 'exact') {
-        return {
-            match: normalizedUser === normalizedExpected,
-            similarity: normalizedUser === normalizedExpected ? 100 : 0
-        };
-    }
-
-    if (comparisonType === 'set') {
-        // Compare as unordered sets (for queries where order doesn't matter)
-        const userSet = new Set(userData.split('\n').map(l => normalizeOutput(l)));
-        const expectedSet = new Set(expectedData.split('\n').map(l => normalizeOutput(l)));
-
-        if (userSet.size !== expectedSet.size) {
-            return { match: false, similarity: 0 };
-        }
-
-        for (const item of expectedSet) {
-            if (!userSet.has(item)) {
-                return { match: false, similarity: 0 };
-            }
-        }
-
-        return { match: true, similarity: 100 };
-    }
-
-    // Fuzzy comparison (default): allow minor differences
-    const similarity = calculateSimilarity(normalizedUser, normalizedExpected);
-
-    // Consider match if >= 95% similar
+  if (comparisonType === 'exact') {
     return {
-        match: similarity >= 95,
-        similarity: Math.round(similarity)
+      match: normalizedUser === normalizedExpected,
+      similarity: normalizedUser === normalizedExpected ? 100 : 0,
     };
+  }
+
+  if (comparisonType === 'set') {
+    // Compare as unordered sets (for queries where order doesn't matter)
+    const userSet = new Set(userData.split('\n').map((l) => normalizeOutput(l)));
+    const expectedSet = new Set(expectedData.split('\n').map((l) => normalizeOutput(l)));
+
+    if (userSet.size !== expectedSet.size) {
+      return { match: false, similarity: 0 };
+    }
+
+    for (const item of expectedSet) {
+      if (!userSet.has(item)) {
+        return { match: false, similarity: 0 };
+      }
+    }
+
+    return { match: true, similarity: 100 };
+  }
+
+  // Fuzzy comparison (default): allow minor differences
+  const similarity = calculateSimilarity(normalizedUser, normalizedExpected);
+
+  // Consider match if >= 95% similar
+  return {
+    match: similarity >= 95,
+    similarity: Math.round(similarity),
+  };
 }
 
 /**
  * Calculates similarity percentage between two strings
- * @param {string} str1 
- * @param {string} str2 
+ * @param {string} str1
+ * @param {string} str2
  * @returns {number} Similarity percentage (0-100)
  */
 function calculateSimilarity(str1, str2) {
-    if (str1 === str2) return 100;
-    if (!str1 || !str2) return 0;
+  if (str1 === str2) return 100;
+  if (!str1 || !str2) return 0;
 
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
+  const longer = str1.length > str2.length ? str1 : str2;
+  const shorter = str1.length > str2.length ? str2 : str1;
 
-    if (longer.length === 0) return 100;
+  if (longer.length === 0) return 100;
 
-    const editDistance = levenshteinDistance(str1, str2);
-    return ((longer.length - editDistance) / longer.length) * 100;
+  const editDistance = levenshteinDistance(str1, str2);
+  return ((longer.length - editDistance) / longer.length) * 100;
 }
 
 /**
  * Calculates Levenshtein distance between two strings
- * @param {string} str1 
- * @param {string} str2 
+ * @param {string} str1
+ * @param {string} str2
  * @returns {number}
  */
 function levenshteinDistance(str1, str2) {
-    const matrix = [];
+  const matrix = [];
 
-    for (let i = 0; i <= str2.length; i++) {
-        matrix[i] = [i];
+  for (let i = 0; i <= str2.length; i++) {
+    matrix[i] = [i];
+  }
+
+  for (let j = 0; j <= str1.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= str2.length; i++) {
+    for (let j = 1; j <= str1.length; j++) {
+      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          matrix[i][j - 1] + 1, // insertion
+          matrix[i - 1][j] + 1 // deletion
+        );
+      }
     }
+  }
 
-    for (let j = 0; j <= str1.length; j++) {
-        matrix[0][j] = j;
-    }
-
-    for (let i = 1; i <= str2.length; i++) {
-        for (let j = 1; j <= str1.length; j++) {
-            if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-                matrix[i][j] = matrix[i - 1][j - 1];
-            } else {
-                matrix[i][j] = Math.min(
-                    matrix[i - 1][j - 1] + 1, // substitution
-                    matrix[i][j - 1] + 1,     // insertion
-                    matrix[i - 1][j] + 1      // deletion
-                );
-            }
-        }
-    }
-
-    return matrix[str2.length][str1.length];
+  return matrix[str2.length][str1.length];
 }
 
 /**
@@ -171,47 +165,59 @@ function levenshteinDistance(str1, str2) {
  * @returns {string[]} Array of suggestions
  */
 function analyzeTSErrors(stderr) {
-    const suggestions = [];
+  const suggestions = [];
 
-    if (!stderr) return suggestions;
+  if (!stderr) return suggestions;
 
-    const lowerError = stderr.toLowerCase();
+  const lowerError = stderr.toLowerCase();
 
-    // Common error patterns
-    if (lowerError.includes('syntax error') || lowerError.includes('mismatched input')) {
-        suggestions.push('Revisa la sintaxis de tu script. Asegúrate de que todas las declaraciones terminen con punto y coma.');
-    }
+  // Common error patterns for TS/NestJS
+  if (lowerError.includes('syntaxerror') || lowerError.includes('unexpected token')) {
+    suggestions.push(
+      'Revisa la sintaxis de tu código. Asegúrate de que las llaves {} y paréntesis () estén equilibrados.'
+    );
+  }
 
-    if (lowerError.includes('cannot resolve')) {
-        suggestions.push('Verifica que los nombres de campos sean correctos y coincidan con el esquema definido en LOAD.');
-    }
+  if (lowerError.includes('cannot find module')) {
+    suggestions.push(
+      'Verifica que estás importando correctamente el módulo y que el archivo existe en la ruta indicada.'
+    );
+  }
 
-    if (lowerError.includes('incompatible types')) {
-        suggestions.push('Hay un problema de tipos de datos. Verifica que estés usando operadorescompatibles con los tipos de datos.');
-    }
+  if (lowerError.includes('is not assignable to type')) {
+    suggestions.push(
+      'Hay un problema de tipos de datos. Verifica que el valor devuelto o asignado coincida con la firma de la función o variable.'
+    );
+  }
 
-    if (lowerError.includes('file does not exist') || lowerError.includes('input path does not exist')) {
-        suggestions.push('El archivo de datos no se encuentra. Verifica la ruta en la declaración LOAD.');
-    }
+  if (lowerError.includes('is not defined')) {
+    suggestions.push('Estás intentando usar una variable o función que no ha sido declarada.');
+  }
 
-    if (lowerError.includes('unable to open iterator')) {
-        suggestions.push('Puede haber un problema con la estructura de datos. Verifica que estés usando GROUP o JOIN correctamente.');
-    }
+  if (lowerError.includes('notfoundexception')) {
+    suggestions.push(
+      'Asegúrate de importar NotFoundException desde @nestjs/common y lanzarlo correctamente con `throw new NotFoundException(...)`.'
+    );
+  }
 
-    if (lowerError.includes('scalar has more than one row')) {
-        suggestions.push('Estás intentando usar un resultado que devuelve múltiples filas como si fuera un solo valor.');
-    }
+  if (lowerError.includes('validation_error')) {
+    suggestions.push(
+      'Tu código no cumple con los requisitos del ejercicio. Revisa las instrucciones y los hints.'
+    );
+  }
 
-    if (suggestions.length === 0 && stderr.length > 0) {
-        suggestions.push('Revisa el mensaje de error completo. Los errores suelen indicar la línea problemática.');
-    }
+  if (suggestions.length === 0 && stderr.length > 0) {
+    suggestions.push(
+      'Revisa el mensaje de error completo; la primera línea suele indicar exactamente qué falló y dónde.'
+    );
+  }
 
-    return suggestions;
+  return suggestions;
 }
 
 module.exports = {
-    compareOutputs,
-    extractDataOutput,
-    normalizeOutput,
-    analyzeTSErrors
+  compareOutputs,
+  extractDataOutput,
+  normalizeOutput,
+  analyzeTSErrors,
 };

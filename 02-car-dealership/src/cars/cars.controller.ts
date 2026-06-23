@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe, ParseUUIDPipe } from '@nestjs/common';
 import { CarsService } from './cars.service';
+import { UpdateCarDto, CreateCarDto } from './dtos';
 
 @Controller('cars')
 export class CarsController {
@@ -24,6 +25,7 @@ export class CarsController {
   // TODO 4: Endpoint POST /cars
   // Usa el decorador @Post() para crear el método createCar().
   // Extrae el cuerpo de la petición (JSON) usando @Body() body: any
+  // Nota: En la creación (POST), el ID no se recibe por parámetro en la URL ni debe ser obligatorio en el body, el servicio lo asignará.
 
   // TODO 5: Endpoint PATCH /cars/:id
   // Usa el decorador @Patch(':id') para el método updateCars().
@@ -33,5 +35,32 @@ export class CarsController {
   // TODO 6: Endpoint DELETE /cars/:id
   // Usa el decorador @Delete(':id') para el método deleteCar().
   // Extrae el ID usando @Param('id', ParseIntPipe).
+
+  constructor(private readonly carsService: CarsService) {}
+
+  @Get()
+  findAllCars() {
+    return this.carsService.findAll();
+  }
+
+  @Get(':id')
+  getCarById(@Param('id', ParseUUIDPipe) id: string) {
+    return this.carsService.findOneById(id);
+  }
+
+  @Post()
+  create(@Body() body: CreateCarDto) {
+    return this.carsService.create(body);
+  }
+
+  @Patch(':id')
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateCarDto) {
+    return this.carsService.update(id, body);
+  }
+
+  @Delete(':id')
+  delete(@Param('id', ParseUUIDPipe) id: string) {
+    return this.carsService.delete(id);
+  }
 
 }

@@ -4,11 +4,12 @@ Bienvenido al módulo educativo de NestJS. Esta carpeta contiene todo el sistema
 
 ## Tests
 
-La plataforma utiliza **Vitest** para garantizar que los scripts y el sistema de evaluación automatizada funcionan correctamente. 
+La plataforma utiliza **Vitest** para garantizar que los scripts y el sistema de evaluación automatizada funcionan correctamente.
 
 > **Nota:** Para ejecutar las pruebas de integración, asegúrate de que el servidor esté corriendo previamente (por ejemplo, con `docker compose up -d` o `npm run dev`).
 
 Para ejecutar los tests de validación:
+
 ```bash
 # Ejecutar pruebas una sola vez
 npm test
@@ -21,8 +22,8 @@ npm run test:watch
 
 Todo el contenido pedagógico se encuentra estructurado por niveles dentro del directorio `exercises/`:
 
-* **`nivel_1_typescript_intro`**: Fundamentos de TypeScript aplicados a NestJS (Tipos, Interfaces, Clases, Async, Decoradores).
-* *(Próximos niveles se añadirán a medida que progrese el curso)*
+- **`nivel_1_typescript_intro`**: Fundamentos de TypeScript aplicados a NestJS (Tipos, Interfaces, Clases, Async, Decoradores).
+- _(Próximos niveles se añadirán a medida que progrese el curso)_
 
 ## 🚀 Cómo estudiar cada nivel
 
