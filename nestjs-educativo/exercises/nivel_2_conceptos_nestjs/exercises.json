@@ -1,24 +1,38 @@
 [
   {
     "id": 1,
-    "title_es": "El CLI de NestJS: Módulos y Controladores",
-    "title_en": "NestJS CLI: Modules and Controllers",
+    "title_es": "Andamiaje de Estructura Inicial (Scaffolding)",
+    "title_en": "Initial Structure Scaffolding",
     "difficulty": "facil",
     "concepts": [
-      "CLI",
-      "Módulos",
-      "Controladores"
+      "CLI de NestJS"
     ],
-    "description_es": "La CLI de Nest genera archivos e importa automáticamente dependencias. Un **Módulo** agrupa recursos de un dominio, y un **Controlador** escucha peticiones HTTP.\n\n### Instrucciones\nVamos a trabajar con el dominio de Coches (Cars).\n1. Abre la terminal e invoca `nest g mo cars` para generar el Módulo.\n2. Luego, ejecuta `nest g co cars --no-spec` para generar su Controlador. La CLI lo registrará en el módulo.\n3. Abre `src/cars/cars.controller.ts`. Añade un método decorado con `@Get()` llamado `getAllCars()` que devuelva el string `'Catálogo de coches'`.",
-    "description_en": "Use the CLI to generate a module and a controller.",
+    "description_es": "### Contexto Real\nUn equipo junior ha creado una nueva API para un concesionario de vehículos. Lamentablemente, todos los controladores, servicios y clases han sido agrupados dentro del módulo raíz (AppModule), y la falta de uso de las herramientas automatizadas de la CLI ha ocasionado errores de importación y falta de estandarización.\n\n### Problema Actual\nEl sistema es una única masa de código mal dividida y no utiliza la automatización estándar para crear recursos.\n\n### Comportamiento Esperado\nComprende la función del CLI de NestJS. Construye (escribiendo en este test) la estructura básica de archivos para el dominio `cars`. Se espera la creación en directorios de `cars.module.ts`, `cars.controller.ts` y `cars.service.ts` como ocurriría al ejecutar `nest g res cars --no-spec`. El código debe exportar clases vacías decoradas correctamente con `@Module`, `@Controller('cars')` y `@Injectable()`.\n\n### Casos de Uso\nInicialización estandarizada de nuevos dominios.\n\n### Restricciones Naturales\nEl controlador debe tener como prefijo de ruta la cadena `cars`.",
+    "description_en": "### Real Context\nA junior team built a car dealership API, but clustered everything in the root module manually, lacking standardization.\n\n### Current Problem\nThe system is poorly partitioned without CLI usage.\n\n### Expected Behavior\nBuild the basic file structure for the `cars` domain (module, controller, service) decorated with `@Module`, `@Controller('cars')` and `@Injectable()`.",
     "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
       },
       {
         "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+        "content": "import { Module } from '@nestjs/common';\n@Module({})\nexport class AppModule {}"
       },
       {
         "path": "src/app.controller.ts",
@@ -31,60 +45,57 @@
     ],
     "solution_files": [
       {
-        "path": "src/main.ts",
-        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
-      },
-      {
-        "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
-      },
-      {
-        "path": "src/app.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
-      },
-      {
-        "path": "src/app.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
-      },
-      {
         "path": "src/cars/cars.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\nimport { CarsService } from './cars.service';\n@Module({ controllers: [CarsController], providers: [CarsService] })\nexport class CarsModule {}"
       },
       {
         "path": "src/cars/cars.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Get()\n  getAllCars() {\n    return 'Catálogo de coches';\n  }\n}\n"
+        "content": "import { Controller } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {}"
+      },
+      {
+        "path": "src/cars/cars.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n@Injectable()\nexport class CarsService {}"
       }
     ],
-    "hints_es": [
-      "Recuerda ejecutar ambos comandos: `nest g mo cars` y luego `nest g co cars --no-spec`."
-    ],
-    "hints_en": [
-      "Run nest g mo cars and nest g co cars."
-    ],
-    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport * as fs from 'fs';\n\nasync function test() {\n  try {\n    if (!fs.existsSync('./src/cars/cars.module.ts')) throw new Error('[VALIDATION_ERROR] No se encontró cars.module.ts. ¿Ejecutaste el comando de módulo?');\n    const { CarsController } = await import('./src/cars/cars.controller');\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    const controller: any = moduleRef.get(CarsController, { strict: false });\n    if (!controller) throw new Error('[VALIDATION_ERROR] No se encontró el CarsController en la aplicación.');\n    const methodName = controller.getAllCars ? 'getAllCars' : null;\n    if (!methodName) throw new Error('[VALIDATION_ERROR] No se encontró el método getAllCars()');\n    const methodType = Reflect.getMetadata('method', controller[methodName]);\n    if (methodType !== 0) throw new Error('[VALIDATION_ERROR] El método debe usar el decorador @Get()');\n    if (controller[methodName]() !== 'Catálogo de coches') throw new Error('[VALIDATION_ERROR] El método no devuelve \"Catálogo de coches\".');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import * as fs from 'fs'; function test() { if(!fs.existsSync('./src/cars/cars.module.ts') || !fs.existsSync('./src/cars/cars.controller.ts') || !fs.existsSync('./src/cars/cars.service.ts')) throw new Error('Los archivos scaffold no fueron creados'); const ctrl = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!ctrl.includes(\"@Controller('cars')\")) throw new Error('El controlador no tiene el prefijo de ruta correcto'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 2,
-    "title_es": "Controladores: Endpoints y Decoradores",
-    "title_en": "Controllers: Endpoints and Decorators",
-    "difficulty": "medium",
+    "title_es": "Aislamiento Funcional mediante Módulos",
+    "title_en": "Functional Isolation via Modules",
+    "difficulty": "facil",
     "concepts": [
-      "Controladores",
-      "Métodos HTTP",
-      "Rutas",
-      "Body",
-      "Param"
+      "Estructura y Módulos",
+      "@Module"
     ],
-    "description_es": "Mapearemos los métodos HTTP a funciones usando decoradores de métodos (`@Get`, `@Post`, `@Patch`, `@Delete`) y extraeremos datos de la petición (`@Param`, `@Body`).\n\n### Instrucciones\nSeguimos con Cars.\n1. En `src/cars/cars.controller.ts`, crea un endpoint `@Get(':id')`. Extrae el ID con `@Param('id') id: string`. Retorna `'Coche ' + id`.\n2. Crea un endpoint `@Post()`. Extrae el cuerpo con `@Body() body: any`. Retorna `'Creado ' + body.brand`.\n3. Crea un endpoint `@Patch(':id')`. Usa `@Param('id') id: string` y `@Body() body: any`. Retorna `'Actualizado ' + id`.\n4. Crea un endpoint `@Delete(':id')`. Usa `@Param('id') id: string`. Retorna `'Eliminado ' + id`.",
-    "description_en": "Implement RESTful endpoints using proper decorators.",
+    "description_es": "### Contexto Real\nEn nuestra arquitectura de concesionario, tenemos dos dominios diferentes: Vehículos (`Cars`) y Usuarios (`Users`). Al arrancar el servidor, los componentes de Vehículos no se ejecutan porque no han sido enlazados al árbol principal de la aplicación.\n\n### Problema Actual\nEl `AppModule` está vacío y no actúa como raíz del sistema.\n\n### Comportamiento Esperado\nImplementa el `AppModule` para que funcione como el Root Module de la aplicación. Debe importar y registrar el `CarsModule`. (El código de `CarsModule` ya viene configurado para ti en este entorno aislado).\n\n### Casos de Uso\nConsolidación de dependencias en el arranque del servidor.",
+    "description_en": "### Real Context\nIn our dealership architecture, the `Cars` module is completely detached from the application tree.\n\n### Expected Behavior\nImplement the `AppModule` to act as the Root Module, importing the `CarsModule`.",
     "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
       },
       {
         "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+        "content": "import { Module } from '@nestjs/common';\n@Module({})\nexport class AppModule {}"
       },
       {
         "path": "src/app.controller.ts",
@@ -97,50 +108,47 @@
     ],
     "solution_files": [
       {
-        "path": "src/main.ts",
-        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
-      },
-      {
         "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
-      },
-      {
-        "path": "src/app.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
-      },
-      {
-        "path": "src/app.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n@Module({ imports: [CarsModule] })\nexport class AppModule {}"
       },
       {
         "path": "src/cars/cars.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\n\n@Module({ controllers: [CarsController] })\nexport class CarsModule {}\n"
-      },
-      {
-        "path": "src/cars/cars.controller.ts",
-        "content": "import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Get(':id') getCarById(@Param('id') id: string) { return 'Coche ' + id; }\n  @Post() createCar(@Body() body: any) { return 'Creado ' + body.brand; }\n  @Patch(':id') updateCar(@Param('id') id: string, @Body() body: any) { return 'Actualizado ' + id; }\n  @Delete(':id') deleteCar(@Param('id') id: string) { return 'Eliminado ' + id; }\n}\n"
+        "content": "import { Module } from '@nestjs/common';\n@Module({})\nexport class CarsModule {}"
       }
     ],
-    "hints_es": [
-      "El import completo es: `import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/common';`"
-    ],
-    "hints_en": [
-      "Apply native decorators like `@Post()`."
-    ],
-    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport { CarsController } from './src/cars/cars.controller';\n\nasync function test() {\n  try {\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    const ctrl: any = moduleRef.get(CarsController, { strict: false });\n    const routes = Object.getOwnPropertyNames(Object.getPrototypeOf(ctrl)).filter(m => m !== 'constructor');\n    if (routes.length < 4) throw new Error('[VALIDATION_ERROR] Faltan endpoints por implementar en el controlador.');\n    let getPassed = false, postPassed = false, patchPassed = false, deletePassed = false;\n    for (const r of routes) {\n       const methodType = Reflect.getMetadata('method', ctrl[r]);\n       try { if (methodType === 0 && ctrl[r]('123') === 'Coche 123') getPassed = true; } catch(e){}\n       try { if (methodType === 1 && ctrl[r]({brand: 'Toyota'}) === 'Creado Toyota') postPassed = true; } catch(e){}\n       try { if (methodType === 4 && ctrl[r]('2', {brand: 'Honda'}) === 'Actualizado 2') patchPassed = true; } catch(e){}\n       try { if (methodType === 3 && ctrl[r]('99') === 'Eliminado 99') deletePassed = true; } catch(e){}\n    }\n    if (!getPassed) throw new Error('[VALIDATION_ERROR] El GET por ID falla o no usa @Get()'); \n    if (!postPassed) throw new Error('[VALIDATION_ERROR] El POST falla o no usa @Post()'); \n    if (!patchPassed) throw new Error('[VALIDATION_ERROR] El PATCH falla o no usa @Patch()');\n    if (!deletePassed) throw new Error('[VALIDATION_ERROR] El DELETE falla o no usa @Delete()');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import * as fs from 'fs'; function test() { const mod = fs.readFileSync('./src/app.module.ts', 'utf8'); if(!mod.includes('imports: [CarsModule]')) throw new Error('AppModule no está importando CarsModule'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 3,
-    "title_es": "Servicios e Inyección de Dependencias",
-    "title_en": "Services and Dependency Injection",
-    "difficulty": "medium",
+    "title_es": "Resolución de Rutas HTTP en Controladores",
+    "title_en": "HTTP Route Resolution in Controllers",
+    "difficulty": "medio",
     "concepts": [
-      "Servicios",
-      "Inyección de Dependencias"
+      "Controladores",
+      "@Controller",
+      "Endpoints"
     ],
-    "description_es": "Los **Servicios** contienen la **Lógica de Negocio**. Se decoran con `@Injectable()` y se inyectan en los Controladores usando DI.\n\n### Instrucciones\n1. En la terminal, ejecuta `nest g s cars --no-spec` para generar `cars.service.ts`.\n2. En `src/cars/cars.service.ts`, crea un método `findAll()` que retorne `[{ id: 1, brand: 'Toyota' }]`.\n3. En `src/cars/cars.controller.ts`, inyecta el servicio en el constructor usando `private readonly`.\n4. Añade un método `@Get()` (si no lo tienes) en el controlador para que devuelva `this.carsService.findAll()`.",
-    "description_en": "Generate a service and inject it into the controller.",
+    "description_es": "### Contexto Real\nEl cliente Frontend solicita una lista general de coches para la pantalla de inicio, y un mecanismo para buscar coches específicos. Las rutas de red están fallando (HTTP 404).\n\n### Problema Actual\nEl controlador no tiene mapeados los verbos HTTP correspondientes para exponer datos al exterior.\n\n### Comportamiento Esperado\nEn `CarsController`, implementa dos rutas estáticas (sin lógica de servicio). La primera debe responder a peticiones de lectura globales en `/cars` retornando un array `['Toyota', 'Honda']`. La segunda debe responder a inserciones de lectura globales retornando un string `'Car created'` a través de un verbo de escritura genérico.\n\n### Casos de Uso\nMapeo de API REST estática.",
+    "description_en": "### Expected Behavior\nIn `CarsController`, map a GET route to return `['Toyota', 'Honda']` and a POST route returning `'Car created'`.",
     "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
@@ -156,60 +164,49 @@
       {
         "path": "src/app.service.ts",
         "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n}"
       }
     ],
     "solution_files": [
       {
-        "path": "src/main.ts",
-        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
-      },
-      {
-        "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
-      },
-      {
-        "path": "src/app.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
-      },
-      {
-        "path": "src/app.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
-      },
-      {
-        "path": "src/cars/cars.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\nimport { CarsService } from './cars.service';\n\n@Module({\n  controllers: [CarsController],\n  providers: [CarsService],\n})\nexport class CarsModule {}\n"
-      },
-      {
         "path": "src/cars/cars.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\nimport { CarsService } from './cars.service';\n\n@Controller('cars')\nexport class CarsController {\n  constructor(private readonly carsService: CarsService) {}\n  @Get()\n  findAll() {\n    return this.carsService.findAll();\n  }\n}\n"
-      },
-      {
-        "path": "src/cars/cars.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class CarsService {\n  findAll() { return [{ id: 1, brand: 'Toyota' }]; }\n}\n"
+        "content": "import { Controller, Get, Post } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n  @Get()\n  getAll() { return ['Toyota', 'Honda']; }\n  @Post()\n  create() { return 'Car created'; }\n}"
       }
     ],
-    "hints_es": [
-      "El comando CLI exacto es: `nest g s cars --no-spec`.",
-      "Asegúrate de importar `CarsService` en tu controlador."
-    ],
-    "hints_en": [
-      "Inject dependencies via the constructor."
-    ],
-    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport * as fs from 'fs';\n\nasync function test() {\n  try {\n    if (!fs.existsSync('./src/cars/cars.service.ts')) throw new Error('[VALIDATION_ERROR] No se encontró cars.service.ts. Usa el comando CLI.');\n    const { CarsController } = await import('./src/cars/cars.controller');\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    const controller: any = moduleRef.get(CarsController, { strict: false });\n    if (!controller) throw new Error('[VALIDATION_ERROR] No se encontró el CarsController.');\n    const res = controller.findAll ? controller.findAll() : null;\n    if (!Array.isArray(res) || res.length !== 1 || res[0].brand !== 'Toyota') throw new Error('[VALIDATION_ERROR] El controlador no está devolviendo el arreglo desde el servicio.');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import { Test } from '@nestjs/testing'; import { Controller, Get, Post } from '@nestjs/common'; import * as fs from 'fs'; async function test() { const content = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!content.includes('@Get()') || !content.includes('@Post()')) throw new Error('No se han definido los decoradores de endpoint correctamente'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 4,
-    "title_es": "Pipes: Transformación y ParseIntPipe",
-    "title_en": "Built-in Pipes: ParseIntPipe",
-    "difficulty": "medium",
+    "title_es": "Extracción Dinámica de Contextos de Red",
+    "title_en": "Dynamic Extraction of Network Contexts",
+    "difficulty": "medio",
     "concepts": [
-      "Pipes",
-      "Validación",
-      "Transformación"
+      "Decoradores de Extracción de Datos"
     ],
-    "description_es": "Los **Pipes** transforman o validan datos. `ParseIntPipe` asegura que el parámetro de ruta sea un número válido.\n\n### Instrucciones\n1. En `src/cars/cars.controller.ts`, añade el import de `ParseIntPipe` desde `@nestjs/common`.\n2. En tu endpoint `@Get(':id')`, aplícalo: `@Param('id', ParseIntPipe) id: number`.\n3. Asegúrate de retornar `'Coche ' + id`.",
-    "description_en": "Use the built-in ParseIntPipe to validate and transform route parameters.",
+    "description_es": "### Contexto Real\nLos usuarios están intentando enviar filtros por URL y cuerpos de datos para actualizar inventarios, pero la aplicación está recibiendo objetos vacíos.\n\n### Problema Actual\nEl controlador ha definido los métodos, pero no sabe cómo \"atrapar\" las piezas de información enviadas por el navegador HTTP.\n\n### Comportamiento Esperado\nDefine tres endpoints. \n1. Actualización de una entidad (`PATCH` a `/:id`): Extrae la variable de URL dinámica y el cuerpo json simultáneamente, y retorna un objeto concatenándolos: `{ id, payload }`.\n2. Búsqueda (`GET` a `/search`): Extrae parámetros de query (como `/search?brand=Honda`) e imprime el filtro en retorno.\n\n### Casos de Uso\nLectura de la petición del cliente.",
+    "description_en": "### Expected Behavior\nDefine endpoints to extract `@Param('id')`, `@Body()`, and `@Query()`. The PATCH method should return the extracted data.",
     "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
@@ -225,58 +222,49 @@
       {
         "path": "src/app.service.ts",
         "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Get, Patch } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n  @Patch(':id')\n  updateCar(id: string, payload: any) {\n    return { id, payload };\n  }\n  @Get('search')\n  searchCar(brand: string) {\n    return brand;\n  }\n}"
       }
     ],
     "solution_files": [
       {
-        "path": "src/main.ts",
-        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
-      },
-      {
-        "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
-      },
-      {
-        "path": "src/app.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
-      },
-      {
-        "path": "src/app.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
-      },
-      {
-        "path": "src/cars/cars.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\nimport { CarsService } from './cars.service';\n\n@Module({\n  controllers: [CarsController],\n  providers: [CarsService],\n})\nexport class CarsModule {}\n"
-      },
-      {
         "path": "src/cars/cars.controller.ts",
-        "content": "import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Get(':id')\n  getCarById(@Param('id', ParseIntPipe) id: number) {\n    return 'Coche ' + id;\n  }\n}\n"
-      },
-      {
-        "path": "src/cars/cars.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class CarsService {\n  findAll() { return [{ id: 1, brand: 'Toyota' }]; }\n}\n"
+        "content": "import { Controller, Get, Patch, Param, Body, Query } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n  @Patch(':id')\n  updateCar(@Param('id') id: string, @Body() payload: any) {\n    return { id, payload };\n  }\n  @Get('search')\n  searchCar(@Query('brand') brand: string) {\n    return brand;\n  }\n}"
       }
     ],
-    "hints_es": [
-      "Aplica el pipe como segundo argumento del decorador `@Param`."
-    ],
-    "hints_en": [
-      "Apply ParseIntPipe."
-    ],
-    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport { CarsController } from './src/cars/cars.controller';\nimport * as fs from 'fs';\n\nasync function test() {\n  try {\n    const src = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8');\n    if (!src.includes('ParseIntPipe')) throw new Error('[VALIDATION_ERROR] No estás usando ParseIntPipe');\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    const ctrl: any = moduleRef.get(CarsController, { strict: false });\n    let passed = false;\n    if (ctrl.getCarById(5) === 'Coche 5') passed = true;\n    if(!passed) throw new Error('[VALIDATION_ERROR] El método no devuelve \"Coche 5\"');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!c.includes('@Param(') || !c.includes('@Body()') || !c.includes('@Query(')) throw new Error('Faltan decoradores de extracción'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 5,
-    "title_es": "Exception Filters: NotFoundException",
-    "title_en": "Exception Filters: NotFoundException",
-    "difficulty": "hard",
+    "title_es": "Delegación Lógica e Inversión de Control",
+    "title_en": "Logical Delegation and Inversion of Control",
+    "difficulty": "dificil",
     "concepts": [
-      "Excepciones",
-      "Lógica de Negocio"
+      "Servicios e Inyección de Dependencias"
     ],
-    "description_es": "En NestJS usamos Excepciones HTTP nativas para indicar errores de negocio.\n\n### Instrucciones\n1. En `src/cars/cars.service.ts`, implementa `findOneById(id: number)`.\n2. Si el ID no es `1`, lanza un error: `throw new NotFoundException('Coche no encontrado')`.\n3. Si es `1`, retorna `{ id: 1, brand: 'Toyota' }`.",
-    "description_en": "Throw a native NotFoundException when a resource is missing.",
+    "description_es": "### Contexto Real\nEl controlador de nuestro dominio `cars` contiene toda la lógica para filtrar, procesar y almacenar coches, convirtiéndose en un \"Fat Controller\" inmanejable y violando los principios de responsabilidad única.\n\n### Problema Actual\nLa separación de capas no existe. El controlador se auto-gestiona e impide realizar pruebas unitarias a nivel lógico de negocio.\n\n### Comportamiento Esperado\nCrea un servicio `CarsService` (decorado) que posea un método que retorne `['Mazda']`. Inyéctalo (DI) en `CarsController` mediante el constructor abreviado de TypeScript. Finalmente, haz que el endpoint raíz (`GET`) del controlador delegue su respuesta a este servicio.\n\n### Casos de Uso\nCapa de negocio separada.",
+    "description_en": "### Expected Behavior\nCreate `CarsService` returning `['Mazda']`. Inject it into `CarsController` via constructor and delegate the GET response to it.",
     "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
@@ -292,61 +280,53 @@
       {
         "path": "src/app.service.ts",
         "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
-      }
-    ],
-    "solution_files": [
-      {
-        "path": "src/main.ts",
-        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
-      },
-      {
-        "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsModule } from './cars/cars.module';\n\n@Module({ imports: [CarsModule] })\nexport class AppModule {}\n"
-      },
-      {
-        "path": "src/app.controller.ts",
-        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
-      },
-      {
-        "path": "src/app.service.ts",
-        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
-      },
-      {
-        "path": "src/cars/cars.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { CarsController } from './cars.controller';\nimport { CarsService } from './cars.service';\n\n@Module({\n  controllers: [CarsController],\n  providers: [CarsService],\n})\nexport class CarsModule {}\n"
       },
       {
         "path": "src/cars/cars.controller.ts",
-        "content": "import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';\n\n@Controller('cars')\nexport class CarsController {\n  @Get(':id')\n  getCarById(@Param('id', ParseIntPipe) id: number) {\n    return 'Coche ' + id;\n  }\n}\n"
-      },
-      {
-        "path": "src/cars/cars.service.ts",
-        "content": "import { Injectable, NotFoundException } from '@nestjs/common';\n\n@Injectable()\nexport class CarsService {\n  findOneById(id: number) {\n    if (id !== 1) {\n      throw new NotFoundException('Coche no encontrado');\n    }\n    return { id: 1, brand: 'Toyota' };\n  }\n}\n"
+        "content": "import { Controller, Get } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n  @Get()\n  getAll() { return ['Mazda']; /* Mover al servicio */ }\n}"
       }
     ],
-    "hints_es": [
-      "Usa `throw new NotFoundException('...')`."
+    "solution_files": [
+      {
+        "path": "src/cars/cars.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n@Injectable()\nexport class CarsService {\n  getAll() { return ['Mazda']; }\n}"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { CarsService } from './cars.service';\n@Controller('cars')\nexport class CarsController {\n  constructor(private readonly carsService: CarsService) {}\n  @Get()\n  getAll() { return this.carsService.getAll(); }\n}"
+      }
     ],
-    "hints_en": [
-      "Throw new NotFoundException"
-    ],
-    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport { CarsService } from './src/cars/cars.service';\nimport { HttpException } from '@nestjs/common';\n\nasync function test() {\n  try {\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    const service: any = moduleRef.get(CarsService, { strict: false });\n    let threw = false;\n    try { service.findOneById(999); }\n    catch (e) {\n      threw = true;\n      if (!(e instanceof HttpException)) throw new Error('[VALIDATION_ERROR] El error lanzado no es un HttpException (NotFoundException).');\n    }\n    if (!threw) throw new Error('[VALIDATION_ERROR] Sigue retornando null en lugar de lanzar la excepción');\n    console.log('Test pasado correctamente');\n  } catch (e) { throw e; }\n}\ntest();"
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!c.includes('constructor(private readonly carsService')) throw new Error('El servicio no fue inyectado correctamente'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 6,
-    "title_es": "Desafío Final: Task Manager API (Fundamentos)",
-    "title_en": "Final Challenge: Task Manager API (Fundamentals)",
-    "difficulty": "hard",
+    "title_es": "Conversión Determinista mediante Tuberías Nativas",
+    "title_en": "Deterministic Conversion using Native Pipes",
+    "difficulty": "dificil",
     "concepts": [
-      "Scaffolding",
-      "REST API",
-      "Pipes",
-      "Exception Filters",
-      "DI"
+      "Pipes de Transformación y Validación"
     ],
-    "description_es": "¡Desafío final del Nivel 2! Desarrollarás un gestor de tareas aplicando los conceptos fundamentales de NestJS.\n\n### Requisitos:\n1. **Scaffolding**: Usa `nest g res tasks --no-spec` para crear módulo, controlador, servicio y entities.\n2. **Entity**: En `task.entity.ts`, define la clase `Task` con `id: number`, `title: string`, `description: string`, `isCompleted: boolean`.\n3. **Servicio**: Inicializa `tasks: Task[] = []`. Implementa:\n   - `create(body: any)`: genera un `id` numérico simple (`Date.now()` o autonumérico) y lo inserta.\n   - `findAll()`: retorna el arreglo.\n   - `findOne(id: number)`: busca y si no existe lanza `NotFoundException`.\n   - `update(id: number, body: any)`: actualiza y lanza `NotFoundException` si no existe.\n   - `remove(id: number)`: elimina y lanza `NotFoundException` si no existe.\n4. **Controlador**: Aplica `ParseIntPipe` a todos los `@Param('id')` para asegurar que el ID llega como número.",
-    "description_en": "Design and implement a complete REST API to manage Tasks using DI, Exception Filters, and Pipes.",
+    "description_es": "### Contexto Real\nLas rutas de la base de datos están devolviendo errores de tipo, porque una consulta como `/cars/3` envía a la lógica de negocio un identificador del tipo `string`, provocando comparaciones estrictas (`===`) nulas con el tipo numérico `number` de los registros guardados.\n\n### Problema Actual\nEl controlador recibe el fragmento de URL en crudo sin validar ni transformar la carga.\n\n### Comportamiento Esperado\nUtilizando un endpoint de lectura dinámica (`/:id`), integra un Pipe de NestJS en la inyección del parámetro para asegurar que el valor entrante se transmute automáticamente a un tipo Numérico Estricto, interrumpiendo el flujo del usuario si la cadena enviada no es parseable.\n\n### Casos de Uso\nProtección de tipos de entrada en parámetros dinámicos.",
+    "description_en": "### Expected Behavior\nIntegrate `ParseIntPipe` in a `/:id` GET endpoint to ensure the incoming string ID is deterministically cast to a number before hitting the controller logic.",
     "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
@@ -362,42 +342,149 @@
       {
         "path": "src/app.service.ts",
         "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Get, Param } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n  @Get(':id')\n  findOne(@Param('id') id: string) {\n    return typeof id;\n  }\n}"
       }
     ],
     "solution_files": [
+      {
+        "path": "src/cars/cars.controller.ts",
+        "content": "import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';\n@Controller('cars')\nexport class CarsController {\n  @Get(':id')\n  findOne(@Param('id', ParseIntPipe) id: number) {\n    return typeof id;\n  }\n}"
+      }
+    ],
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!c.includes('ParseIntPipe')) throw new Error('El ParseIntPipe no está aplicado en el parámetro del controlador'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 7,
+    "title_es": "Delegación de Interrupciones Críticas del Negocio",
+    "title_en": "Delegation of Critical Business Interruptions",
+    "difficulty": "dificil",
+    "concepts": [
+      "Manejo Global de Excepciones"
+    ],
+    "description_es": "### Contexto Real\nUn usuario solicita modificar el perfil de un coche (`ID = 999`) que fue eliminado la semana pasada. El servidor entra en un estado inestable, devolviendo un error 500 fatal genérico porque el servicio de base de datos encontró una excepción silenciosa.\n\n### Problema Actual\nLa capa lógica no notifica explícitamente a NestJS cuando un recurso de negocio está ilocalizable, dejando que la red decida el error aleatoriamente.\n\n### Comportamiento Esperado\nImplementa una validación en la capa de `CarsService` (en un método inventado `findOneById`). Aliméntala para que verifique si el id recibido es estricto a `999`. En caso afirmativo, interrumpe el bloque léxico e instruye a NestJS mediante el lanzamiento estandarizado de una excepción HTTP asumiendo que el recurso requerido no fue hallado (Excepción NotFoundException nativa).\n\n### Casos de Uso\nManejo de flujos nulos en base de datos.",
+    "description_en": "### Expected Behavior\nImplement a method in `CarsService`. If the input is `999`, throw Nest's built-in `NotFoundException`.",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
       {
         "path": "src/main.ts",
         "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
       },
       {
         "path": "src/app.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { TasksModule } from './tasks/tasks.module';\n\n@Module({ imports: [TasksModule] })\nexport class AppModule {}\n"
+        "content": "import { Module } from '@nestjs/common';\nimport { AppController } from './app.controller';\nimport { AppService } from './app.service';\n\n@Module({\n  imports: [],\n  controllers: [AppController],\n  providers: [AppService],\n})\nexport class AppModule {}\n"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      },
+      {
+        "path": "src/cars/cars.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n@Injectable()\nexport class CarsService {\n  findOneById(id: number) {\n    if (id === 999) {\n      // TODO: Lanzar excepcion\n    }\n    return 'Car data';\n  }\n}"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/cars/cars.service.ts",
+        "content": "import { Injectable, NotFoundException } from '@nestjs/common';\n@Injectable()\nexport class CarsService {\n  findOneById(id: number) {\n    if (id === 999) throw new NotFoundException('Car not found');\n    return 'Car data';\n  }\n}"
+      }
+    ],
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import * as fs from 'fs'; function test() { const s = fs.readFileSync('./src/cars/cars.service.ts', 'utf8'); if(!s.includes('NotFoundException')) throw new Error('No se lanzó la excepción estandarizada requerida'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 8,
+    "title_es": "Integración del Nivel 2: Task Manager Backend",
+    "title_en": "Level 2 Integration: Task Manager Backend",
+    "difficulty": "muy_dificil",
+    "concepts": [
+      "Estructura y Módulos",
+      "Controladores",
+      "Servicios e Inyección de Dependencias",
+      "Pipes de Transformación y Validación",
+      "Manejo Global de Excepciones",
+      "Decoradores de Extracción de Datos"
+    ],
+    "description_es": "### Contexto Real\nNecesitamos un sistema de gestión de microtareas interdepartamentales. Actualmente no existe nada más que el `AppModule` vacío. Los usuarios deben crear, listar, localizar, actualizar dinámicamente y expurgar tareas desde la base de datos volátil.\n\n### Problema Actual\nSe requiere un backend estructurado desde cero, integrando módulos, rutas, tuberías de limpieza, abstracción de errores e inyección de contexto.\n\n### Comportamiento Esperado\nLevanta el dominio `tasks` (módulo, servicio, controlador). En el servicio mantén un estado interno en memoria `tasks = []`. Implementa un flujo completo REST: \n1. Endpoint de creación extrayendo cuerpo de petición (POST).\n2. Endpoint de lectura global (GET).\n3. Endpoints de lectura específica, actualización, y borrado inyectando tuberías de transformación de ID a Número (ParseIntPipe).\n4. Todos los endpoints que referencien un ID deben lanzar correctamente una abstracción NotFound si este no reside en memoria, delegando todo proceso lógico al servicio y separando la entrada de red en el controlador.\n\n### Casos de Uso\nDesarrollo integral de microservicios autónomos en blanco.",
+    "description_en": "### Expected Behavior\nDevelop the full `tasks` domain (module, service, controller). Build memory-based CRUD endpoints utilizing native decorators (`@Body`, `@Param`), dependency injection, strict transformation pipes (`ParseIntPipe`), and exception handling (`NotFoundException`) across the stack.",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"description\": \"\",\n  \"author\": \"\",\n  \"private\": true,\n  \"license\": \"UNLICENSED\",\n  \"scripts\": {\n    \"build\": \"nest build\",\n    \"format\": \"prettier --write \\\"src/**/*.ts\\\" \\\"test/**/*.ts\\\"\",\n    \"start\": \"nest start\",\n    \"start:dev\": \"nest start --watch\",\n    \"start:debug\": \"nest start --debug --watch\",\n    \"start:prod\": \"node dist/main\",\n    \"lint\": \"eslint \\\"{src,apps,libs,test}/**/*.ts\\\" --fix\",\n    \"test\": \"jest\",\n    \"test:watch\": \"jest --watch\",\n    \"test:cov\": \"jest --coverage\",\n    \"test:debug\": \"node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand\",\n    \"test:e2e\": \"jest --config ./test/jest-e2e.json\"\n  },\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\",\n    \"class-validator\": \"^0.14.0\",\n    \"class-transformer\": \"^0.5.1\",\n    \"@nestjs/mapped-types\": \"*\"\n  },\n  \"devDependencies\": {\n    \"@nestjs/cli\": \"^10.0.0\",\n    \"@nestjs/schematics\": \"^10.0.0\",\n    \"@nestjs/testing\": \"^10.0.0\",\n    \"@types/express\": \"^4.17.17\",\n    \"@types/jest\": \"^29.5.2\",\n    \"@types/node\": \"^20.3.1\",\n    \"@types/supertest\": \"^6.0.0\",\n    \"@typescript-eslint/eslint-plugin\": \"^6.0.0\",\n    \"@typescript-eslint/parser\": \"^6.0.0\",\n    \"eslint\": \"^8.42.0\",\n    \"eslint-config-prettier\": \"^9.0.0\",\n    \"eslint-plugin-prettier\": \"^5.0.0\",\n    \"jest\": \"^29.5.0\",\n    \"prettier\": \"^3.0.0\",\n    \"source-map-support\": \"^0.5.21\",\n    \"supertest\": \"^6.3.3\",\n    \"ts-jest\": \"^29.1.0\",\n    \"ts-loader\": \"^9.4.3\",\n    \"ts-node\": \"^10.9.1\",\n    \"tsconfig-paths\": \"^4.2.0\",\n    \"typescript\": \"^5.1.3\"\n  },\n  \"jest\": {\n    \"moduleFileExtensions\": [\n      \"js\",\n      \"json\",\n      \"ts\"\n    ],\n    \"rootDir\": \"src\",\n    \"testRegex\": \".*\\\\.spec\\\\.ts$\",\n    \"transform\": {\n      \"^.+\\\\.(t|j)s$\": \"ts-jest\"\n    },\n    \"collectCoverageFrom\": [\n      \"**/*.(t|j)s\"\n    ],\n    \"coverageDirectory\": \"../coverage\",\n    \"testEnvironment\": \"node\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.json",
+        "content": "{\n  \"compilerOptions\": {\n    \"module\": \"commonjs\",\n    \"declaration\": true,\n    \"removeComments\": true,\n    \"emitDecoratorMetadata\": true,\n    \"experimentalDecorators\": true,\n    \"allowSyntheticDefaultImports\": true,\n    \"target\": \"ES2021\",\n    \"sourceMap\": true,\n    \"outDir\": \"./dist\",\n    \"baseUrl\": \"./\",\n    \"incremental\": true,\n    \"skipLibCheck\": true,\n    \"strictNullChecks\": false,\n    \"noImplicitAny\": false,\n    \"strictBindCallApply\": false,\n    \"forceConsistentCasingInFileNames\": false,\n    \"noFallthroughCasesInSwitch\": false,\n    \"ignoreDeprecations\": \"6.0\",\n    \"rootDir\": \"./\"\n  }\n}"
+      },
+      {
+        "path": "tsconfig.build.json",
+        "content": "{\n  \"extends\": \"./tsconfig.json\",\n  \"exclude\": [\"node_modules\", \"test\", \"dist\", \"**/*spec.ts\"]\n}"
+      },
+      {
+        "path": "nest-cli.json",
+        "content": "{\n  \"$schema\": \"https://json.schemastore.org/nest-cli\",\n  \"collection\": \"@nestjs/schematics\",\n  \"sourceRoot\": \"src\",\n  \"compilerOptions\": {\n    \"deleteOutDir\": true\n  }\n}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n@Module({})\nexport class AppModule {}"
+      },
+      {
+        "path": "src/app.controller.ts",
+        "content": "import { Controller, Get } from '@nestjs/common';\nimport { AppService } from './app.service';\n\n@Controller()\nexport class AppController {\n  constructor(private readonly appService: AppService) {}\n\n  @Get()\n  getHello(): string {\n    return this.appService.getHello();\n  }\n}\n"
+      },
+      {
+        "path": "src/app.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\n\n@Injectable()\nexport class AppService {\n  getHello(): string {\n    return 'Hello World!';\n  }\n}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { TasksModule } from './tasks/tasks.module';\n@Module({ imports: [TasksModule] })\nexport class AppModule {}"
       },
       {
         "path": "src/tasks/tasks.module.ts",
-        "content": "import { Module } from '@nestjs/common';\nimport { TasksService } from './tasks.service';\nimport { TasksController } from './tasks.controller';\n\n@Module({ controllers: [TasksController], providers: [TasksService] })\nexport class TasksModule {}\n"
-      },
-      {
-        "path": "src/tasks/entities/task.entity.ts",
-        "content": "export class Task {\n  id: number;\n  title: string;\n  description: string;\n  isCompleted: boolean;\n}\n"
+        "content": "import { Module } from '@nestjs/common';\nimport { TasksService } from './tasks.service';\nimport { TasksController } from './tasks.controller';\n@Module({ controllers: [TasksController], providers: [TasksService] })\nexport class TasksModule {}"
       },
       {
         "path": "src/tasks/tasks.service.ts",
-        "content": "import { Injectable, NotFoundException } from '@nestjs/common';\nimport { Task } from './entities/task.entity';\n\n@Injectable()\nexport class TasksService {\n  private tasks: Task[] = [];\n  private idCounter = 1;\n\n  create(body: any) {\n    const newTask: Task = {\n      id: this.idCounter++,\n      title: body.title,\n      description: body.description,\n      isCompleted: false,\n    };\n    this.tasks.push(newTask);\n    return newTask;\n  }\n\n  findAll() { return this.tasks; }\n\n  findOne(id: number) {\n    const task = this.tasks.find(t => t.id === id);\n    if (!task) throw new NotFoundException('Task not found');\n    return task;\n  }\n\n  update(id: number, body: any) {\n    const task = this.findOne(id);\n    if (body.title !== undefined) task.title = body.title;\n    if (body.description !== undefined) task.description = body.description;\n    if (body.isCompleted !== undefined) task.isCompleted = body.isCompleted;\n    return task;\n  }\n\n  remove(id: number) {\n    const index = this.tasks.findIndex(t => t.id === id);\n    if (index === -1) throw new NotFoundException('Task not found');\n    const removed = this.tasks.splice(index, 1);\n    return removed[0];\n  }\n}\n"
+        "content": "import { Injectable, NotFoundException } from '@nestjs/common';\n@Injectable()\nexport class TasksService {\n  private tasks = [];\n  private idCounter = 1;\n  create(payload: any) {\n    const task = { id: this.idCounter++, ...payload };\n    this.tasks.push(task);\n    return task;\n  }\n  findAll() { return this.tasks; }\n  findOne(id: number) {\n    const t = this.tasks.find(x => x.id === id);\n    if(!t) throw new NotFoundException();\n    return t;\n  }\n  update(id: number, payload: any) {\n    const t = this.findOne(id);\n    Object.assign(t, payload);\n    return t;\n  }\n  remove(id: number) {\n    this.findOne(id);\n    this.tasks = this.tasks.filter(x => x.id !== id);\n  }\n}"
       },
       {
         "path": "src/tasks/tasks.controller.ts",
-        "content": "import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';\nimport { TasksService } from './tasks.service';\n\n@Controller('tasks')\nexport class TasksController {\n  constructor(private readonly tasksService: TasksService) {}\n\n  @Post()\n  create(@Body() body: any) {\n    return this.tasksService.create(body);\n  }\n\n  @Get()\n  findAll() {\n    return this.tasksService.findAll();\n  }\n\n  @Get(':id')\n  findOne(@Param('id', ParseIntPipe) id: number) {\n    return this.tasksService.findOne(id);\n  }\n\n  @Patch(':id')\n  update(@Param('id', ParseIntPipe) id: number, @Body() body: any) {\n    return this.tasksService.update(id, body);\n  }\n\n  @Delete(':id')\n  remove(@Param('id', ParseIntPipe) id: number) {\n    return this.tasksService.remove(id);\n  }\n}\n"
+        "content": "import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe } from '@nestjs/common';\nimport { TasksService } from './tasks.service';\n@Controller('tasks')\nexport class TasksController {\n  constructor(private readonly tasksService: TasksService) {}\n  @Post()\n  create(@Body() payload: any) { return this.tasksService.create(payload); }\n  @Get()\n  findAll() { return this.tasksService.findAll(); }\n  @Get(':id')\n  findOne(@Param('id', ParseIntPipe) id: number) { return this.tasksService.findOne(id); }\n  @Patch(':id')\n  update(@Param('id', ParseIntPipe) id: number, @Body() payload: any) { return this.tasksService.update(id, payload); }\n  @Delete(':id')\n  remove(@Param('id', ParseIntPipe) id: number) { return this.tasksService.remove(id); }\n}"
       }
     ],
-    "hints_es": [
-      "Usa `nest g res tasks --no-spec`.",
-      "No olvides ParseIntPipe en `@Param('id', ParseIntPipe) id: number`.",
-      "No es necesario crear DTOs por ahora, usa `@Body() body: any`."
-    ],
-    "hints_en": [
-      "Apply ParseIntPipe on GET, PATCH, and DELETE."
-    ],
-    "test_script": "import { Test } from '@nestjs/testing';\nimport { AppModule } from './src/app.module';\nimport { NotFoundException } from '@nestjs/common';\nimport * as fs from 'fs';\n\nasync function test() {\n  try {\n    if (!fs.existsSync('./src/tasks/tasks.controller.ts')) throw new Error('[VALIDATION_ERROR] Falta tasks.controller.ts');\n    if (!fs.existsSync('./src/tasks/tasks.service.ts')) throw new Error('[VALIDATION_ERROR] Falta tasks.service.ts');\n    \n    const controllerCode = fs.readFileSync('./src/tasks/tasks.controller.ts', 'utf8');\n    if (!controllerCode.includes('ParseIntPipe')) throw new Error('[VALIDATION_ERROR] Debes usar ParseIntPipe en el controlador');\n\n    const { TasksController } = await import('./src/tasks/tasks.controller');\n    const { TasksService } = await import('./src/tasks/tasks.service');\n    const moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();\n    \n    let controller: any = moduleRef.get(TasksController, { strict: false });\n    \n    const newTaskPayload = { title: 'Comprar pan', description: 'Ir a la panaderia' };\n    const createdTask = await controller.create(newTaskPayload);\n    if (!createdTask || typeof createdTask.id !== 'number' || createdTask.title !== 'Comprar pan') {\n      throw new Error('[VALIDATION_ERROR] create() no devolvió el objeto correcto o no generó un ID numérico');\n    }\n\n    let threwNotFound = false;\n    try {\n      await controller.findOne(999);\n    } catch (e: any) {\n      if (e instanceof NotFoundException) threwNotFound = true;\n    }\n    if (!threwNotFound) throw new Error('[VALIDATION_ERROR] findOne con ID inválido debe lanzar NotFoundException');\n\n    console.log('Test pasado correctamente');\n  } catch (e: any) {\n    throw e;\n  }\n}\ntest();"
+    "hints_es": [],
+    "hints_en": [],
+    "test_script": "import { Test } from '@nestjs/testing'; import { AppModule } from './src/app.module'; async function test() { const ref = await Test.createTestingModule({ imports: [AppModule] }).compile(); const app = ref.createNestApplication(); await app.init(); await app.listen(0); const url = await app.getUrl(); const create = await fetch(`${url}/tasks`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:'test'}) }); if(create.status !== 201) throw new Error('El flujo de creación falló'); const err = await fetch(`${url}/tasks/999`); if(err.status !== 404) throw new Error('El pipe de excepción nativa falló'); await app.close(); console.log('Test pasado correctamente'); } test();"
   }
 ]

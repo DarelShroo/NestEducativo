@@ -15,12 +15,7 @@ Tomaremos como base práctica la creación de una aplicación de concesionario d
 5. [Servicios e Inyección de Dependencias (DI)](#5-servicios-e-inyección-de-dependencias-di)
 6. [Pipes de Transformación y Validación](#6-pipes-de-transformación-y-validación)
 7. [Manejo Global de Excepciones](#7-manejo-global-de-excepciones)
-8. [DTOs (Data Transfer Objects) e Interfaces](#8-dtos-data-transfer-objects-e-interfaces)
-9. [Validación Avanzada: class-validator y class-transformer](#9-validación-avanzada-class-validator-y-class-transformer)
-10. [ValidationPipe a Fondo](#10-validationpipe-a-fondo)
-11. [UUID y ParseUUIDPipe](#11-uuid-y-parseuuidpipe)
-12. [Organización de Código: Alias de Importación y Barrel Files](#12-organización-de-código-alias-de-importación-y-barrel-files)
-13. [Proyecto Final de Unidad](#13-proyecto-final-de-unidad)
+8. [Proyecto Final de Unidad](#8-proyecto-final-de-unidad)
 
 ---
 
