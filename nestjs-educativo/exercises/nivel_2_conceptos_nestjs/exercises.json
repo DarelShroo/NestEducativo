@@ -2,13 +2,11 @@
   {
     "id": 1,
     "title_es": "Andamiaje de Estructura Inicial (Scaffolding)",
-    "title_en": "Initial Structure Scaffolding",
     "difficulty": "facil",
     "concepts": [
       "CLI de NestJS"
     ],
     "description_es": "### Contexto Real\nUn equipo junior ha creado una nueva API para un concesionario de vehículos. Lamentablemente, todos los controladores, servicios y clases han sido agrupados dentro del módulo raíz (AppModule), y la falta de uso de las herramientas automatizadas de la CLI ha ocasionado errores de importación y falta de estandarización.\n\n### Problema Actual\nEl sistema es una única masa de código mal dividida y no utiliza la automatización estándar para crear recursos.\n\n### Comportamiento Esperado\nComprende la función del CLI de NestJS. Construye (escribiendo en este test) la estructura básica de archivos para el dominio `cars`. Se espera la creación en directorios de `cars.module.ts`, `cars.controller.ts` y `cars.service.ts` como ocurriría al ejecutar `nest g res cars --no-spec`. El código debe exportar clases vacías decoradas correctamente con `@Module`, `@Controller('cars')` y `@Injectable()`.\n\n### Casos de Uso\nInicialización estandarizada de nuevos dominios.\n\n### Restricciones Naturales\nEl controlador debe tener como prefijo de ruta la cadena `cars`.",
-    "description_en": "### Real Context\nA junior team built a car dealership API, but clustered everything in the root module manually, lacking standardization.\n\n### Current Problem\nThe system is poorly partitioned without CLI usage.\n\n### Expected Behavior\nBuild the basic file structure for the `cars` domain (module, controller, service) decorated with `@Module`, `@Controller('cars')` and `@Injectable()`.",
     "files": [
       {
         "path": "package.json",
@@ -58,20 +56,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { if(!fs.existsSync('./src/cars/cars.module.ts') || !fs.existsSync('./src/cars/cars.controller.ts') || !fs.existsSync('./src/cars/cars.service.ts')) throw new Error('Los archivos scaffold no fueron creados'); const ctrl = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!ctrl.includes(\"@Controller('cars')\")) throw new Error('El controlador no tiene el prefijo de ruta correcto'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 2,
     "title_es": "Aislamiento Funcional mediante Módulos",
-    "title_en": "Functional Isolation via Modules",
     "difficulty": "facil",
     "concepts": [
       "Estructura y Módulos",
       "@Module"
     ],
     "description_es": "### Contexto Real\nEn nuestra arquitectura de concesionario, tenemos dos dominios diferentes: Vehículos (`Cars`) y Usuarios (`Users`). Al arrancar el servidor, los componentes de Vehículos no se ejecutan porque no han sido enlazados al árbol principal de la aplicación.\n\n### Problema Actual\nEl `AppModule` está vacío y no actúa como raíz del sistema.\n\n### Comportamiento Esperado\nImplementa el `AppModule` para que funcione como el Root Module de la aplicación. Debe importar y registrar el `CarsModule`. (El código de `CarsModule` ya viene configurado para ti en este entorno aislado).\n\n### Casos de Uso\nConsolidación de dependencias en el arranque del servidor.",
-    "description_en": "### Real Context\nIn our dealership architecture, the `Cars` module is completely detached from the application tree.\n\n### Expected Behavior\nImplement the `AppModule` to act as the Root Module, importing the `CarsModule`.",
     "files": [
       {
         "path": "package.json",
@@ -117,13 +112,11 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const mod = fs.readFileSync('./src/app.module.ts', 'utf8'); if(!mod.includes('imports: [CarsModule]')) throw new Error('AppModule no está importando CarsModule'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 3,
     "title_es": "Resolución de Rutas HTTP en Controladores",
-    "title_en": "HTTP Route Resolution in Controllers",
     "difficulty": "medio",
     "concepts": [
       "Controladores",
@@ -131,7 +124,6 @@
       "Endpoints"
     ],
     "description_es": "### Contexto Real\nEl cliente Frontend solicita una lista general de coches para la pantalla de inicio, y un mecanismo para buscar coches específicos. Las rutas de red están fallando (HTTP 404).\n\n### Problema Actual\nEl controlador no tiene mapeados los verbos HTTP correspondientes para exponer datos al exterior.\n\n### Comportamiento Esperado\nEn `CarsController`, implementa dos rutas estáticas (sin lógica de servicio). La primera debe responder a peticiones de lectura globales en `/cars` retornando un array `['Toyota', 'Honda']`. La segunda debe responder a inserciones de lectura globales retornando un string `'Car created'` a través de un verbo de escritura genérico.\n\n### Casos de Uso\nMapeo de API REST estática.",
-    "description_en": "### Expected Behavior\nIn `CarsController`, map a GET route to return `['Toyota', 'Honda']` and a POST route returning `'Car created'`.",
     "files": [
       {
         "path": "package.json",
@@ -177,19 +169,16 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { Test } from '@nestjs/testing'; import { Controller, Get, Post } from '@nestjs/common'; import * as fs from 'fs'; async function test() { const content = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!content.includes('@Get()') || !content.includes('@Post()')) throw new Error('No se han definido los decoradores de endpoint correctamente'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 4,
     "title_es": "Extracción Dinámica de Contextos de Red",
-    "title_en": "Dynamic Extraction of Network Contexts",
     "difficulty": "medio",
     "concepts": [
       "Decoradores de Extracción de Datos"
     ],
     "description_es": "### Contexto Real\nLos usuarios están intentando enviar filtros por URL y cuerpos de datos para actualizar inventarios, pero la aplicación está recibiendo objetos vacíos.\n\n### Problema Actual\nEl controlador ha definido los métodos, pero no sabe cómo \"atrapar\" las piezas de información enviadas por el navegador HTTP.\n\n### Comportamiento Esperado\nDefine tres endpoints. \n1. Actualización de una entidad (`PATCH` a `/:id`): Extrae la variable de URL dinámica y el cuerpo json simultáneamente, y retorna un objeto concatenándolos: `{ id, payload }`.\n2. Búsqueda (`GET` a `/search`): Extrae parámetros de query (como `/search?brand=Honda`) e imprime el filtro en retorno.\n\n### Casos de Uso\nLectura de la petición del cliente.",
-    "description_en": "### Expected Behavior\nDefine endpoints to extract `@Param('id')`, `@Body()`, and `@Query()`. The PATCH method should return the extracted data.",
     "files": [
       {
         "path": "package.json",
@@ -235,19 +224,16 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!c.includes('@Param(') || !c.includes('@Body()') || !c.includes('@Query(')) throw new Error('Faltan decoradores de extracción'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 5,
     "title_es": "Delegación Lógica e Inversión de Control",
-    "title_en": "Logical Delegation and Inversion of Control",
     "difficulty": "dificil",
     "concepts": [
       "Servicios e Inyección de Dependencias"
     ],
     "description_es": "### Contexto Real\nEl controlador de nuestro dominio `cars` contiene toda la lógica para filtrar, procesar y almacenar coches, convirtiéndose en un \"Fat Controller\" inmanejable y violando los principios de responsabilidad única.\n\n### Problema Actual\nLa separación de capas no existe. El controlador se auto-gestiona e impide realizar pruebas unitarias a nivel lógico de negocio.\n\n### Comportamiento Esperado\nCrea un servicio `CarsService` (decorado) que posea un método que retorne `['Mazda']`. Inyéctalo (DI) en `CarsController` mediante el constructor abreviado de TypeScript. Finalmente, haz que el endpoint raíz (`GET`) del controlador delegue su respuesta a este servicio.\n\n### Casos de Uso\nCapa de negocio separada.",
-    "description_en": "### Expected Behavior\nCreate `CarsService` returning `['Mazda']`. Inject it into `CarsController` via constructor and delegate the GET response to it.",
     "files": [
       {
         "path": "package.json",
@@ -297,19 +283,16 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!c.includes('constructor(private readonly carsService')) throw new Error('El servicio no fue inyectado correctamente'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 6,
     "title_es": "Conversión Determinista mediante Tuberías Nativas",
-    "title_en": "Deterministic Conversion using Native Pipes",
     "difficulty": "dificil",
     "concepts": [
       "Pipes de Transformación y Validación"
     ],
     "description_es": "### Contexto Real\nLas rutas de la base de datos están devolviendo errores de tipo, porque una consulta como `/cars/3` envía a la lógica de negocio un identificador del tipo `string`, provocando comparaciones estrictas (`===`) nulas con el tipo numérico `number` de los registros guardados.\n\n### Problema Actual\nEl controlador recibe el fragmento de URL en crudo sin validar ni transformar la carga.\n\n### Comportamiento Esperado\nUtilizando un endpoint de lectura dinámica (`/:id`), integra un Pipe de NestJS en la inyección del parámetro para asegurar que el valor entrante se transmute automáticamente a un tipo Numérico Estricto, interrumpiendo el flujo del usuario si la cadena enviada no es parseable.\n\n### Casos de Uso\nProtección de tipos de entrada en parámetros dinámicos.",
-    "description_en": "### Expected Behavior\nIntegrate `ParseIntPipe` in a `/:id` GET endpoint to ensure the incoming string ID is deterministically cast to a number before hitting the controller logic.",
     "files": [
       {
         "path": "package.json",
@@ -355,19 +338,16 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/cars/cars.controller.ts', 'utf8'); if(!c.includes('ParseIntPipe')) throw new Error('El ParseIntPipe no está aplicado en el parámetro del controlador'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 7,
     "title_es": "Delegación de Interrupciones Críticas del Negocio",
-    "title_en": "Delegation of Critical Business Interruptions",
     "difficulty": "dificil",
     "concepts": [
       "Manejo Global de Excepciones"
     ],
     "description_es": "### Contexto Real\nUn usuario solicita modificar el perfil de un coche (`ID = 999`) que fue eliminado la semana pasada. El servidor entra en un estado inestable, devolviendo un error 500 fatal genérico porque el servicio de base de datos encontró una excepción silenciosa.\n\n### Problema Actual\nLa capa lógica no notifica explícitamente a NestJS cuando un recurso de negocio está ilocalizable, dejando que la red decida el error aleatoriamente.\n\n### Comportamiento Esperado\nImplementa una validación en la capa de `CarsService` (en un método inventado `findOneById`). Aliméntala para que verifique si el id recibido es estricto a `999`. En caso afirmativo, interrumpe el bloque léxico e instruye a NestJS mediante el lanzamiento estandarizado de una excepción HTTP asumiendo que el recurso requerido no fue hallado (Excepción NotFoundException nativa).\n\n### Casos de Uso\nManejo de flujos nulos en base de datos.",
-    "description_en": "### Expected Behavior\nImplement a method in `CarsService`. If the input is `999`, throw Nest's built-in `NotFoundException`.",
     "files": [
       {
         "path": "package.json",
@@ -413,13 +393,11 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const s = fs.readFileSync('./src/cars/cars.service.ts', 'utf8'); if(!s.includes('NotFoundException')) throw new Error('No se lanzó la excepción estandarizada requerida'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 8,
     "title_es": "Integración del Nivel 2: Task Manager Backend",
-    "title_en": "Level 2 Integration: Task Manager Backend",
     "difficulty": "muy_dificil",
     "concepts": [
       "Estructura y Módulos",
@@ -430,7 +408,6 @@
       "Decoradores de Extracción de Datos"
     ],
     "description_es": "### Contexto Real\nNecesitamos un sistema de gestión de microtareas interdepartamentales. Actualmente no existe nada más que el `AppModule` vacío. Los usuarios deben crear, listar, localizar, actualizar dinámicamente y expurgar tareas desde la base de datos volátil.\n\n### Problema Actual\nSe requiere un backend estructurado desde cero, integrando módulos, rutas, tuberías de limpieza, abstracción de errores e inyección de contexto.\n\n### Comportamiento Esperado\nLevanta el dominio `tasks` (módulo, servicio, controlador). En el servicio mantén un estado interno en memoria `tasks = []`. Implementa un flujo completo REST: \n1. Endpoint de creación extrayendo cuerpo de petición (POST).\n2. Endpoint de lectura global (GET).\n3. Endpoints de lectura específica, actualización, y borrado inyectando tuberías de transformación de ID a Número (ParseIntPipe).\n4. Todos los endpoints que referencien un ID deben lanzar correctamente una abstracción NotFound si este no reside en memoria, delegando todo proceso lógico al servicio y separando la entrada de red en el controlador.\n\n### Casos de Uso\nDesarrollo integral de microservicios autónomos en blanco.",
-    "description_en": "### Expected Behavior\nDevelop the full `tasks` domain (module, service, controller). Build memory-based CRUD endpoints utilizing native decorators (`@Body`, `@Param`), dependency injection, strict transformation pipes (`ParseIntPipe`), and exception handling (`NotFoundException`) across the stack.",
     "files": [
       {
         "path": "package.json",
@@ -484,7 +461,6 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { Test } from '@nestjs/testing'; import { AppModule } from './src/app.module'; async function test() { const ref = await Test.createTestingModule({ imports: [AppModule] }).compile(); const app = ref.createNestApplication(); await app.init(); await app.listen(0); const url = await app.getUrl(); const create = await fetch(`${url}/tasks`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title:'test'}) }); if(create.status !== 201) throw new Error('El flujo de creación falló'); const err = await fetch(`${url}/tasks/999`); if(err.status !== 404) throw new Error('El pipe de excepción nativa falló'); await app.close(); console.log('Test pasado correctamente'); } test();"
   }
 ]

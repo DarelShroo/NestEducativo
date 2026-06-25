@@ -20,6 +20,7 @@ async function loadExercises(nivel) {
     2: 'nivel_2_conceptos_nestjs',
     3: 'nivel_3_dtos_y_validacion',
     4: 'nivel_4_nest_cli_resource',
+    5: 'nivel_5_mongodb_mongoose',
   };
 
   const nivelDir = nivelMap[nivel];
@@ -41,6 +42,7 @@ async function loadReadme(nivel) {
     2: 'nivel_2_conceptos_nestjs',
     3: 'nivel_3_dtos_y_validacion',
     4: 'nivel_4_nest_cli_resource',
+    5: 'nivel_5_mongodb_mongoose',
   };
 
   const nivelDir = nivelMap[nivel];
@@ -74,8 +76,8 @@ router.get('/nivel/:nivel', async (req, res) => {
   try {
     const nivel = parseInt(req.params.nivel);
 
-    if (!nivel || nivel < 1 || nivel > 4) {
-      return res.status(400).json({ error: 'Invalid level. Must be 1, 2, 3, or 4.' });
+    if (!nivel || nivel < 1 || nivel > 5) {
+      return res.status(400).json({ error: 'Invalid level. Must be 1, 2, 3, 4, or 5.' });
     }
 
     const readme = await loadReadme(nivel);
@@ -98,8 +100,8 @@ router.get('/nivel/:nivel/ejercicios', async (req, res) => {
   try {
     const nivel = parseInt(req.params.nivel);
 
-    if (!nivel || nivel < 1 || nivel > 4) {
-      return res.status(400).json({ error: 'Invalid level. Must be 1, 2, 3, or 4.' });
+    if (!nivel || nivel < 1 || nivel > 5) {
+      return res.status(400).json({ error: 'Invalid level. Must be 1, 2, 3, 4, or 5.' });
     }
 
     const exercises = await loadExercises(nivel);
@@ -108,7 +110,6 @@ router.get('/nivel/:nivel/ejercicios', async (req, res) => {
     const summary = exercises.map((ex) => ({
       id: ex.id,
       title_es: ex.title_es,
-      title_en: ex.title_en,
       difficulty: ex.difficulty,
       concepts: ex.concepts,
     }));
@@ -222,6 +223,7 @@ router.post('/nivel/:nivel/ejercicio/:id/validar', async (req, res) => {
         2: 'nivel_2_conceptos_nestjs',
         3: 'nivel_3_dtos_y_validacion',
         4: 'nivel_4_nest_cli_resource',
+        5: 'nivel_5_mongodb_mongoose',
       };
 
       const outputPath = path.join(

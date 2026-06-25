@@ -2,14 +2,12 @@
   {
     "id": 1,
     "title_es": "Contratos de Red Orientados a Objetos (DTOs)",
-    "title_en": "Object-Oriented Network Contracts (DTOs)",
     "difficulty": "facil",
     "concepts": [
       "DTOs",
       "Interfaces vs Clases"
     ],
     "description_es": "### Contexto Real\nUn endpoint para registrar pagos recibe la carga de la petición de red, pero las interfaces de TypeScript desaparecen en tiempo de compilación. Como resultado, es imposible aislar metadatos en ejecución.\n\n### Problema Actual\nEl controlador define el payload como `any` o con una `interface`, lo cual anula los sistemas de reflexión internos de NestJS.\n\n### Comportamiento Esperado\nCrea una clase `CreatePaymentDto` en un directorio de DTOs (`src/payments/dto`). Declara propiedades inmutables (usando `readonly`) para `amount` (número) y `currency` (texto). Aplica este contrato estructural explícito al método POST del controlador `PaymentsController`.\n\n### Casos de Uso\nDefinición estructural sólida antes de inyectar reglas de validación complejas.",
-    "description_en": "### Expected Behavior\nCreate a `CreatePaymentDto` class with `readonly` properties for `amount` (number) and `currency` (string). Apply it as the payload type in `PaymentsController`.",
     "files": [
       {
         "path": "package.json",
@@ -59,20 +57,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { if(!fs.existsSync('./src/payments/dto/create-payment.dto.ts')) throw new Error('El DTO no se generó en la ruta requerida'); const ctrl = fs.readFileSync('./src/payments/payments.controller.ts', 'utf8'); if(!ctrl.includes('CreatePaymentDto')) throw new Error('El DTO no fue integrado en el controlador'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 2,
     "title_es": "Aplicación de Restricciones Lógicas (class-validator)",
-    "title_en": "Applying Logical Constraints (class-validator)",
     "difficulty": "medio",
     "concepts": [
       "class-validator",
       "Validación Avanzada"
     ],
     "description_es": "### Contexto Real\nEl motor de usuarios sufre caídas porque los clientes HTTP están enviando strings vacíos en nombres de usuario y números negativos en las edades.\n\n### Problema Actual\nEl `CreateUserDto` es simplemente una estructura teórica, pero no ejecuta filtros coercitivos durante el runtime, forzando a la capa de servicio a verificar manual y repetitivamente los tipos.\n\n### Comportamiento Esperado\nIntegra `class-validator` en el `CreateUserDto`. Aplica los decoradores pertinentes para asegurar que el `username` sea un texto y contenga como mínimo 3 caracteres, y que la variable opcional `age` sea un número estricto. Define el mensaje de error de longitud mínima en texto personalizado: `El usuario es demasiado corto`.\n\n### Casos de Uso\nPurga de payloads sucios en la capa de transporte HTTP.",
-    "description_en": "### Expected Behavior\nIntegrate `class-validator` in `CreateUserDto`. Validate `username` as a string with a minimum length of 3 (custom message: 'El usuario es demasiado corto'). Make `age` an optional number.",
     "files": [
       {
         "path": "package.json",
@@ -118,13 +113,11 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const dto = fs.readFileSync('./src/users/dto/create-user.dto.ts', 'utf8'); if(!dto.includes('@MinLength(3') || !dto.includes('El usuario es demasiado corto') || !dto.includes('@IsOptional()')) throw new Error('Los decoradores de validación están ausentes o son incorrectos'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 3,
     "title_es": "Cierre Perimetral de Seguridad (ValidationPipe)",
-    "title_en": "Perimeter Security Lockdown (ValidationPipe)",
     "difficulty": "dificil",
     "concepts": [
       "ValidationPipe",
@@ -132,7 +125,6 @@
       "forbidNonWhitelisted"
     ],
     "description_es": "### Contexto Real\nAtacantes están enviando propiedades adicionales a la API, inyectando variables booleanas no documentadas (como `isAdmin: true`) en un formulario de registro. El backend almacena el objeto crudo incluyendo esta propiedad y compromete el sistema.\n\n### Problema Actual\nEl pipe de validación global está deshabilitado o carece de configuraciones restrictivas de recorte de llaves.\n\n### Comportamiento Esperado\nModifica el archivo `main.ts` inyectando e instanciando `ValidationPipe` global. Habilita imperativamente sus banderas de sanitización de propiedades. Debes encender la purga de propiedades no declaradas en los DTOs y forzar la interrupción inmediata de la ejecución (rechazo estricto) ante cualquier inyección externa (forbid non whitelisted).\n\n### Casos de Uso\nMitigación de ataques Over-Posting (Mass Assignment).",
-    "description_en": "### Expected Behavior\nModify `main.ts` to implement a global `ValidationPipe` with `whitelist: true` and `forbidNonWhitelisted: true` to prevent mass assignment vulnerabilities.",
     "files": [
       {
         "path": "package.json",
@@ -174,20 +166,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const main = fs.readFileSync('./src/main.ts', 'utf8'); if(!main.includes('whitelist: true') || !main.includes('forbidNonWhitelisted: true')) throw new Error('Las banderas de alta seguridad no han sido activadas globalmente'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 4,
     "title_es": "Aislamiento Matemático mediante UUIDs",
-    "title_en": "Mathematical Isolation via UUIDs",
     "difficulty": "medio",
     "concepts": [
       "UUID",
       "ParseUUIDPipe"
     ],
     "description_es": "### Contexto Real\nSe descubrió un ataque de enumeración masiva de red; los scripts escanean endpoints iterativos (ej. `/users/1`, `/users/2`). Arquitectura ha ordenado migrar al estándar UUID v4 para todas las transacciones.\n\n### Problema Actual\nEl endpoint de borrado captura el ID y ejecuta llamadas lentas a la base de datos sin revisar primero si el string corresponde a un formato de Hash válido, desbordando el servidor con queries inútiles.\n\n### Comportamiento Esperado\nIntegra en el parámetro dinámico `:id` de la función de borrado de `UsersController` un verificador riguroso. Usa el pipe nativo para forzar que cualquier petición HTTP a la ruta coincida matemáticamente con la versión 4 de UUID, bloqueando internamente intentos inválidos.\n\n### Casos de Uso\nCapa de entrada para llaves primarias encriptadas.",
-    "description_en": "### Expected Behavior\nIn the delete function of `UsersController`, use `ParseUUIDPipe` to ensure the dynamic `:id` parameter is mathematically a v4 UUID before running any internal logic.",
     "files": [
       {
         "path": "package.json",
@@ -233,20 +222,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/users/users.controller.ts', 'utf8'); if(!c.includes('ParseUUIDPipe')) throw new Error('No se implementó la capa de validación de UUIDs'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 5,
     "title_es": "Escalabilidad Estructural (Barrel Files)",
-    "title_en": "Structural Scalability (Barrel Files)",
     "difficulty": "medio",
     "concepts": [
       "Barrel Files",
       "Organización de Código"
     ],
     "description_es": "### Contexto Real\nUn controlador inmenso posee decenas de líneas consecutivas importando estructuras DTO desde la misma subcarpeta `dto`, mermando severamente la legibilidad y provocando fusiones complejas en git.\n\n### Problema Actual\nLa arquitectura no aplica el patrón de fachada para empaquetar agrupaciones semánticas de clases exportadas.\n\n### Comportamiento Esperado\nImplementa el patrón Barrel File. Crea `src/users/dto/index.ts` y re-exporta dinámicamente todo el contenido de `create-user.dto.ts` y `update-user.dto.ts`. Luego, refactoriza el controlador para importar simultáneamente ambos DTOs desde una única línea que referencie la ruta del directorio en lugar de los archivos individuales.\n\n### Casos de Uso\nExportación empaquetada de componentes de librerías locales.",
-    "description_en": "### Expected Behavior\nImplement the Barrel File pattern. Create `src/users/dto/index.ts` re-exporting all DTOs. Refactor the controller to import them in a single line.",
     "files": [
       {
         "path": "package.json",
@@ -312,13 +298,11 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { if(!fs.existsSync('./src/users/dto/index.ts')) throw new Error('El archivo Barril no ha sido generado'); const c = fs.readFileSync('./src/users/users.controller.ts', 'utf8'); if(c.includes('create-user.dto') || c.includes('update-user.dto')) throw new Error('El controlador no aprovecha el encapsulamiento del Barrel file'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 6,
     "title_es": "Validación Dinámica con Tipos Parciales",
-    "title_en": "Dynamic Validation with Partial Types",
     "difficulty": "dificil",
     "concepts": [
       "Mapped Types",
@@ -326,7 +310,6 @@
       "Herencia Dinámica"
     ],
     "description_es": "### Contexto Real\nDurante una auditoría, se detectó un desdoblamiento insostenible de código: existen dos archivos separados para la creación y la actualización de un usuario con reglas de validación repetidas. Al cambiar un validador en creación, el equipo olvida replicarlo en la actualización.\n\n### Problema Actual\nNo hay una herencia funcional dinámica en tiempo de compilación. Las reglas se duplican a mano perdiendo el principio DRY (Don't Repeat Yourself).\n\n### Comportamiento Esperado\nConfigura `UpdateUserDto` extendiéndolo modularmente de `CreateUserDto` usando las utilidades matemáticas de `@nestjs/mapped-types` (`PartialType`). Esto trasladará automáticamente todas las validaciones de manera opcional para la ruta de mutación.\n\n### Casos de Uso\nOptimización asimétrica de payloads tipo PATCH.",
-    "description_en": "### Expected Behavior\nRefactor `UpdateUserDto` using `PartialType` from `@nestjs/mapped-types` to inherit optionally all validations from `CreateUserDto`.",
     "files": [
       {
         "path": "package.json",
@@ -380,13 +363,11 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const c = fs.readFileSync('./src/users/dto/update-user.dto.ts', 'utf8'); if(!c.includes('PartialType')) throw new Error('El DTO de actualización no utiliza la clase de utilería referencial de Nest'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 7,
     "title_es": "Integración del Nivel 3: Pet Adoption API",
-    "title_en": "Level 3 Integration: Pet Adoption API",
     "difficulty": "muy_dificil",
     "concepts": [
       "DTOs",
@@ -398,7 +379,6 @@
       "Alias de Importación"
     ],
     "description_es": "### Contexto Real\nSe requiere una API robusta y altamente asegurada para gestionar adopciones de mascotas. La red no puede tolerar propiedades fantasma, identificadores predecibles ni estructuras sueltas, exigiendo un andamiaje hermético.\n\n### Problema Actual\nSe te ha concedido un entorno de proyecto en blanco. Debes orquestar toda la capa de limpieza y validación en un único flujo relacional escalable.\n\n### Comportamiento Esperado\nDesarrolla el dominio `pets` mediante API REST con las siguientes restricciones estructurales:\n1. Configura un alias en `tsconfig.json` para importar DTOs con `@dto/*`.\n2. Organiza y exporta `CreatePetDto` y `UpdatePetDto` a través de un archivo index (Barrel File).\n3. `CreatePetDto` exige `name` (cadena mayor a 2 chars), `species` (cadena opcional) y `age` (numérico estricto y positivo) protegiendo el entorno con `class-validator`.\n4. `UpdatePetDto` aplicará `PartialType`.\n5. Globaliza `ValidationPipe` en `main.ts` aniquilando payloads corruptos (`whitelist`, `forbidNonWhitelisted`).\n6. El controlador forzará identificadores UUID versión 4 en todas las modificaciones.\n\n### Casos de Uso\nProtección de primer nivel, abstracción jerárquica y saneamiento de red en arquitecturas de cero confianza.",
-    "description_en": "### Expected Behavior\nDevelop the `pets` REST domain. Use a Barrel File for DTOs. Apply `class-validator` to DTOs. Configure `PartialType` for updates. Activate global `ValidationPipe` with whitelist and forbid properties. Use `ParseUUIDPipe` for parameters.",
     "files": [
       {
         "path": "package.json",
@@ -468,7 +448,6 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { Test } from '@nestjs/testing'; import { AppModule } from './src/app.module'; import * as fs from 'fs'; async function test() { const tsconfig = JSON.parse(fs.readFileSync('tsconfig.json', 'utf8')); if(!tsconfig.compilerOptions.paths['@dto/*']) throw new Error('Alias de TS no configurado'); const main = fs.readFileSync('./src/main.ts', 'utf8'); if(!main.includes('forbidNonWhitelisted')) throw new Error('Seguridad no inyectada en main'); const ref = await Test.createTestingModule({ imports: [AppModule] }).compile(); const app = ref.createNestApplication(); const { ValidationPipe } = await import('@nestjs/common'); app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })); await app.init(); await app.listen(0); const url = await app.getUrl(); const r = await fetch(`${url}/pets`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:'Tobby', age: 3, fakeProp: true})}); if(r.status !== 400) throw new Error('ValidationPipe permitiendo propiedades ilegales o fallando setup'); const patch = await fetch(`${url}/pets/not-uuid`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({age: 4})}); if(patch.status !== 400) throw new Error('UUID validation bypass'); await app.close(); console.log('Test pasado correctamente'); } test();"
   }
 ]

@@ -2,14 +2,12 @@
   {
     "id": 1,
     "title_es": "Aislamiento Estructural Avanzado (CLI Resource)",
-    "title_en": "Advanced Structural Isolation (CLI Resource)",
     "difficulty": "facil",
     "concepts": [
       "Nest CLI Resource",
       "Flags del CLI"
     ],
     "description_es": "### Contexto Real\nEl equipo de despliegue detectó archivos `.spec.ts` fantasma en el pipeline de CI/CD que rompen la subida a producción, debido a que el desarrollador junior ejecutó el comando de Nest CLI sin los flags adecuados.\n\n### Problema Actual\nSe necesita generar de inmediato un CRUD para la entidad `devices`, pero las políticas de DevOps prohíben estrictamente crear archivos de test unitarios durante esta etapa.\n\n### Comportamiento Esperado\nSimula el comportamiento del comando CLI nativo. Despliega la estructura del recurso REST `devices` (Módulo, Controlador y Servicio) dentro de `src/devices`. Adicionalmente, el módulo debe importarse de forma automática en el `AppModule`. Toda esta generación debe ignorar la creación de archivos de testing (simulando el uso de `--no-spec`).\n\n### Casos de Uso\nAndamiaje (scaffolding) libre de ruido.",
-    "description_en": "### Expected Behavior\nSimulate the `nest g res devices --no-spec` command. Build the `devices` module, controller, and service, and import the module into `AppModule`. Ensure no `.spec.ts` files are included.",
     "files": [
       {
         "path": "package.json",
@@ -63,20 +61,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { if(!fs.existsSync('./src/devices/devices.module.ts')) throw new Error('Recurso no creado'); if(fs.existsSync('./src/devices/devices.service.spec.ts')) throw new Error('Se ha violado la restricción de scaffolding sin archivos de testing'); const app = fs.readFileSync('./src/app.module.ts', 'utf8'); if(!app.includes('DevicesModule')) throw new Error('El módulo no fue auto-importado'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 2,
     "title_es": "Cronología y Auditoría Intrínseca (Timestamps)",
-    "title_en": "Chronology and Intrinsic Auditing (Timestamps)",
     "difficulty": "medio",
     "concepts": [
       "Modelo de Datos Básico",
       "Timestamps"
     ],
     "description_es": "### Contexto Real\nUn sistema financiero necesita auditar las transacciones. Actualmente, cuando se crea o actualiza un registro, la base de datos pierde la información sobre cuándo ocurrió el evento exacto, inutilizando el rastreo legal.\n\n### Problema Actual\nLa lógica de almacenamiento en memoria no inyecta firmas de tiempo UNIX deterministas.\n\n### Comportamiento Esperado\nEn un servicio simulado `TransactionsService`, reescribe las funciones `create(payload)` y `update(id, payload)`. \nAl crear, el objeto insertado debe contener dinámicamente un campo numérico `createdAt` y un campo `updatedAt` basados en `new Date().getTime()`. \nAl modificar el registro, el sistema debe reasignar exclusivamente el campo `updatedAt`, manteniendo inalterado su `createdAt`.\n\n### Casos de Uso\nTrazabilidad atómica y retención legal de actividad.",
-    "description_en": "### Expected Behavior\nIn `TransactionsService`, implement `create` and `update`. `create` must assign `createdAt` and `updatedAt` (UNIX ms). `update` must only overwrite `updatedAt`.",
     "files": [
       {
         "path": "package.json",
@@ -122,19 +117,16 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { TransactionsService } from './src/transactions/transactions.service'; async function test() { const s = new TransactionsService(); const a = s.create({ amount: 100 }); if(typeof a.createdAt !== 'number' || typeof a.updatedAt !== 'number') throw new Error('Timestamps no asignados'); const initialCreatedAt = a.createdAt; const initialUpdatedAt = a.updatedAt; await new Promise(r => setTimeout(r, 50)); const b = s.update(1, { amount: 200 }); if(b.createdAt !== initialCreatedAt) throw new Error('Mutación de registro inicial'); if(b.updatedAt <= initialUpdatedAt) throw new Error('Fallo cronológico de actualización'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 3,
     "title_es": "Purga y Estandarización Lexicográfica",
-    "title_en": "Purging and Lexicographical Standardization",
     "difficulty": "medio",
     "concepts": [
       "Manipulación y Normalización de Strings"
     ],
     "description_es": "### Contexto Real\nEl departamento de marketing inserta registros en la tabla de categorías utilizando formatos libres como `\"  DePorTeS \"`. Esto está quebrando el motor de búsqueda porque espera coincidencias exactas.\n\n### Problema Actual\nEl controlador recibe el DTO validado pero el servicio lo almacena textualmente sucio.\n\n### Comportamiento Esperado\nEn `CategoriesService`, implementa el método `create(payload: { name: string })`. Antes de inyectar el payload en la variable de memoria, el servicio debe transformar el atributo `name` purificándolo de espacios inútiles en ambos extremos y convirtiéndolo estructuralmente a minúsculas absolutas.\n\n### Casos de Uso\nLimpieza de strings a nivel capa de servicio antes del impacto en DB.",
-    "description_en": "### Expected Behavior\nIn `CategoriesService`, implement `create`. Extract and transform the `name` property to lower case and trim white spaces before saving.",
     "files": [
       {
         "path": "package.json",
@@ -180,20 +172,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { CategoriesService } from './src/categories/categories.service'; function test() { const s = new CategoriesService(); const r = s.create({ name: '  EcOnOmiA ' }); if(r.name !== 'economia') throw new Error('Limpieza espacial y morfológica fallida'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 4,
     "title_es": "Visibilidad Perimetral Modular (Exports)",
-    "title_en": "Modular Perimeter Visibility (Exports)",
     "difficulty": "dificil",
     "concepts": [
       "Comunicación entre Módulos",
       "exports"
     ],
     "description_es": "### Contexto Real\nEl subsistema de inventario necesita acceso al servicio de facturación. Sin embargo, el módulo de facturación es completamente opaco e impide que el framework inyecte su servicio en componentes externos, generando un error de dependencia irrepetible.\n\n### Problema Actual\nEl proveedor de facturación está encapsulado y su visibilidad predeterminada bloquea la exposición exterior.\n\n### Comportamiento Esperado\nImplementa el archivo `billing.module.ts`. Registra en él el controlador y el servicio. Para solventar la limitación, debes modificar la matriz de configuración del módulo añadiendo explícitamente el array de exportaciones y publicando `BillingService`.\n\n### Casos de Uso\nPatrón de fachada asimétrica para APIs modulares.",
-    "description_en": "### Expected Behavior\nImplement `BillingModule`. Register its controller and service, and explicitly add `BillingService` to the `exports` array to make it available to other modules.",
     "files": [
       {
         "path": "package.json",
@@ -247,20 +236,17 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import * as fs from 'fs'; function test() { const m = fs.readFileSync('./src/billing/billing.module.ts', 'utf8'); if(!m.includes('exports: [BillingService]') && !m.includes('exports:[BillingService]')) throw new Error('El servicio no fue exportado públicamente'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 5,
     "title_es": "Fusión Cruzada de Contextos Funcionales (Imports e Inyección)",
-    "title_en": "Cross-Fusion of Functional Contexts (Imports and Injection)",
     "difficulty": "dificil",
     "concepts": [
       "Inyección de Servicios entre Servicios",
       "imports"
     ],
     "description_es": "### Contexto Real\nLa empresa tiene un `OrdersModule` funcional. Ahora, cada vez que se guarda una orden, se requiere validar paralelamente que el cliente exista utilizando un método del `UsersService` (dentro de `UsersModule`). El contenedor crashea porque `OrdersService` es incapaz de inyectar dependencias foráneas.\n\n### Problema Actual\nNo hay vínculo entre módulos (importación de contexto) ni instanciación por inyección cruzada en el servicio receptor.\n\n### Comportamiento Esperado\nEnlaza arquitectónicamente dos módulos. El `UsersModule` ya exporta su servicio. \n1. Configura `OrdersModule` para que importe estructuralmente el `UsersModule`.\n2. Inyecta mediante el constructor el `UsersService` dentro del `OrdersService`.\n\n### Casos de Uso\nDelegación de procesos B2B intermódulo.",
-    "description_en": "### Expected Behavior\nArchitecturally link two modules. Configure `OrdersModule` to import `UsersModule`. Then inject `UsersService` via the constructor into `OrdersService`.",
     "files": [
       {
         "path": "package.json",
@@ -330,13 +316,11 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { Test } from '@nestjs/testing'; import { OrdersModule } from './src/orders/orders.module'; import { OrdersService } from './src/orders/orders.service'; async function test() { const m = await Test.createTestingModule({ imports: [OrdersModule] }).compile(); const s = m.get(OrdersService); if(!s || !('usersService' in s)) throw new Error('Fallo de inyección intermódulo'); console.log('Test pasado correctamente'); } test();"
   },
   {
     "id": 6,
     "title_es": "Integración del Nivel 4: Sistema Desacoplado de Relaciones",
-    "title_en": "Level 4 Integration: Decoupled Relational System",
     "difficulty": "muy_dificil",
     "concepts": [
       "Nest CLI Resource",
@@ -346,7 +330,6 @@
       "Manipulación y Normalización de Strings"
     ],
     "description_es": "### Contexto Real\nUn operador de telecomunicaciones precisa desplegar dos módulos interactivos: `devices` (Equipos Físicos) y `laboratories` (Laboratorios Técnicos). Cuando se crea un equipo, el sistema debe registrarlo y asignar internamente el equipo al laboratorio, pero con validación rigurosa de consistencia e integridad relacional.\n\n### Problema Actual\nEl servidor está en blanco. Se debe orquestar una aplicación multi-dominio con inyección de depedencias y rutinas de auditoría (timestamps y lowerCasing).\n\n### Comportamiento Esperado\nImplementa el `LaboratoriesModule` y el `DevicesModule`.\n1. `LaboratoriesModule` exportará su `LaboratoriesService`.\n2. `DevicesModule` importará dicho módulo. Su servicio (`DevicesService`) inyectará `LaboratoriesService`.\n3. Al crear un device en su servicio, se recibe `{ name: string, labId: number }`.\n4. El nombre del device debe sanearse (trim y minúsculas).\n5. Se debe validar delegadamente si el `labId` existe usando una función del `LaboratoriesService`. Si no existe, lanza un Error (o NotFoundException).\n6. Al insertar el device validado en la memoria del `DevicesService`, incluye timestamps puros (`createdAt`, `updatedAt`).\n\n### Casos de Uso\nConstrucción integral de un pipeline de microservicios anidados en base al framework base NestJS.",
-    "description_en": "### Expected Behavior\nImplement `LaboratoriesModule` (exporting its service) and `DevicesModule` (importing Laboratories). Inject Labs into Devices. Device creation must sanitize names, validate lab existence via the injected service, and attach UNIX timestamps.",
     "files": [
       {
         "path": "package.json",
@@ -404,7 +387,6 @@
       }
     ],
     "hints_es": [],
-    "hints_en": [],
     "test_script": "import { Test } from '@nestjs/testing'; import { AppModule } from './src/app.module'; import { DevicesService } from './src/devices/devices.service'; async function test() { const m = await Test.createTestingModule({ imports: [AppModule] }).compile(); const s = m.get(DevicesService); let t = false; try { s.create({ name: ' Router ', labId: 99 }); } catch(e) { t = true; } if(!t) throw new Error('Falla en validación de orquestación (labId inválido)'); const ok = s.create({ name: ' SwiTch ', labId: 1 }); if(ok.name !== 'switch' || typeof ok.createdAt !== 'number') throw new Error('Fallo general en formateo o auditoría'); console.log('Test pasado correctamente'); } test();"
   }
 ]

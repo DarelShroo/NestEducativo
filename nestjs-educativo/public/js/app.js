@@ -433,6 +433,7 @@ function displayLevelInfo(nivel, levelInfo) {
     2: 'Nivel 2: Conceptos NestJS',
     3: 'Nivel 3: DTOs y Validación',
     4: 'Nivel 4: Nest CLI Resource',
+    5: 'Nivel 5: MongoDB y Mongoose',
   };
 
   elements.nivelTitle.textContent = nivelNames[nivel];
@@ -447,6 +448,7 @@ function displayExerciseList() {
     2: 'Nivel 2: Conceptos NestJS',
     3: 'Nivel 3: DTOs y Validación',
     4: 'Nivel 4: Nest CLI Resource',
+    5: 'Nivel 5: MongoDB y Mongoose',
   };
 
   elements.ejerciciosTitle.textContent = `${nivelNames[state.currentLevel]} - Ejercicios`;

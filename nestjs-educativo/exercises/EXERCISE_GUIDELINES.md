@@ -102,14 +102,38 @@ Después:
 
 ---
 
-## 🧠 REGLAS DE GUIADO ADAPTATIVO
+## 🧠 REGLAS DE GUIADO ADAPTATIVO Y DISEÑO
 
-| Dificultad | Nivel de Guiado |
-| :--- | :--- |
-| 🟢 facil | Contexto claro + problema acotado + alta orientación implícita |
-| 🟡 medio | Problema completo sin guía técnica |
-| 🔴 dificil | Problema abierto tipo ticket real |
-| ⚫ muy_dificil | Evaluación final sin guía, integración total de todos los temas |
+Es fundamental mantener una separación estricta entre los ejercicios formativos (guiados) y el reto final (abierto).
+
+### 🟢🟡🔴 EJERCICIOS GUIADOS (facil, medio, dificil)
+Estos ejercicios están diseñados para el aprendizaje técnico paso a paso.
+- **Altamente estructurados:** El alumno NO diseña la arquitectura.
+- **Estructura obligatoria explícita:** Se deben indicar explícitamente los nombres de Módulos, Controladores, Servicios y Métodos a crear o modificar (Ej: "Crea `CarsService` con el método `findAll()`").
+- **Endpoints explícitos:** Se debe especificar la ruta y verbo exacto (Ej: `GET /cars`, `PUT /cars/:id`).
+- **Implementación guiada:** El alumno solo implementa la lógica indicada dentro de la estructura impuesta.
+
+### ⚫ EJERCICIO FINAL (muy_dificil)
+Este es el "examen" final que simula un proyecto real de empresa. Es el ÚNICO ejercicio con libertad arquitectónica del nivel y debe cumplir las siguientes reglas estrictas:
+
+#### 1. Dominio Obligatorio y Realista
+Debe estar basado en un dominio profesional concreto.
+- **EJEMPLOS VÁLIDOS:** sistema de biblioteca, sistema de economato, sistema de gestión de inventario hospitalario, sistema de reservas, sistema de facturación interna, sistema de logística.
+- **PROHIBIDO:** "catálogo de productos", "sistema de datos", "gestión genérica de entidades", o dominios vagos y abstractos.
+
+#### 2. No Repetición de Dominio
+El dominio elegido NO puede repetirse en otros niveles. Debe ser único y concebirse como un sistema independiente real (la IA debe asumir que cada nivel representa un proyecto distinto).
+
+#### 3. Cobertura Total de la Unidad
+Debe forzar el uso de **TODOS** los conceptos teóricos y técnicos vistos en el nivel.
+- **Obligatorio:** Integrar en los requisitos funcionales todos los temas tratados (ej. controladores, servicios, operaciones CRUD completas de MongoDB, manejo de error 11000, validación de ObjectIDs, HttpCodes, pipes personalizados, etc.).
+
+#### 4. Nivel de Detalle Técnico
+Debe ser **más extenso** que cualquier otro ejercicio, aproximándose a un ticket épico de proyecto backend real.
+- **NO DEBE CONTENER:** Nombres obligatorios de clases, métodos definidos, estructura de módulos impuesta o guía paso a paso de implementación.
+- **DEBE CONTENER:** Requisitos técnicos completos, endpoints esperados y validaciones estrictas. El diseño arquitectónico es responsabilidad del alumno.
+
+Un nivel solo está bien diseñado si sus ejercicios iniciales son altamente guiados y el último exige diseño autónomo real.
 
 ---
 
@@ -134,24 +158,60 @@ Cada ejercicio debe variar el tipo de fallo:
 
 ---
 
+## 🏗️ ESTADO BASE DEL PROYECTO Y AISLAMIENTO
+
+> **📎 Documento de referencia completo:** [`FRESH_PROJECT_RULES.md`](./FRESH_PROJECT_RULES.md)
+
+Las reglas completas de estado base, aislamiento entre ejercicios, archivos iniciales obligatorios y excepciones del ejercicio final están definidas en el documento enlazado. A continuación se presenta un resumen ejecutivo:
+
+- Cada ejercicio parte de un **NestJS recién creado** (`nest new project`). Solo existen `src/main.ts`, `src/app.module.ts`, `package.json`, `tsconfig.json` y `nest-cli.json`.
+- **Prohibido** asumir que existen módulos, controladores, servicios, DTOs o Pipes de ejercicios anteriores.
+- Cada ejercicio debe **especificar explícitamente** qué se crea desde cero (módulos, controllers, services, schemas, pipes).
+- Los archivos `files` del JSON deben incluir siempre: `package.json`, `src/main.ts` y `src/app.module.ts`.
+- **Excepción:** Solo el ejercicio final (`muy_dificil`) puede partir con una base parcial, pero debe documentar claramente qué existe y qué falta.
+
+---
+
+## 📝 ESTILO DE REDACCIÓN (NUEVAS REGLAS OBLIGATORIAS)
+
+### ❌ ESTILO PROHIBIDO (DEBE ELIMINARSE)
+Está estrictamente prohibido generar ejercicios con:
+- Lenguaje poético o narrativo (ej. "Es momento de entregar el motor de catálogo principal...").
+- Metáforas extensas (ej. "engranaje del sistema", "ecosistema digital", "tejido de la aplicación").
+- Descripciones ambiguas o excesivamente creativas.
+- Contextos irreales, exagerados o emocionalmente cargados.
+- Redacción inflada sin valor técnico directo.
+
+### ✅ ESTILO OBLIGATORIO (TIPO JIRA TICKET)
+Los ejercicios deben ser redactados asumiendo un entorno de trabajo real:
+- **Directos y técnicos.**
+- **Realistas:** Como tickets de Jira, reportes de bugs reales o historias de usuario.
+- **Breves pero completos.**
+- **Sin adornos narrativos.** Prioriza siempre la claridad arquitectónica y técnica.
+
+---
+
 ## 🏗️ FORMATO OBLIGATORIO DE CADA EJERCICIO
 
-Cada ejercicio debe incluir:
+Cada ejercicio debe seguir EXACTAMENTE esta estructura en su descripción JSON:
+
+### Descripción
+(Sección principal del ejercicio que agrupa los siguientes puntos).
 
 ### Contexto Real
-Sistema en producción con incidente o feature incompleta.
+Problema técnico real del sistema backend. Para el **Ejercicio Final**, debe ser un sistema real basado en un dominio concreto (ej: "Sistema de gestión de inventario en un economato hospitalario con control de stock"). Prohibido usar narrativa inmersiva, ficción, o dominios genéricos como "catálogo de productos".
 
 ### Problema Actual
-Bug o comportamiento incorrecto.
+Qué está fallando exactamente en el código o arquitectura (si es un bug), o la ausencia del sistema (si es un feature nuevo).
 
 ### Comportamiento Esperado
-Resultado observable correcto.
+Qué debe hacer el sistema de forma observable y validable.
 
 ### Casos de Uso
-Requests reales de API.
+Ejemplos concretos de uso de API, flujo de datos, o payloads de petición/respuesta.
 
-### Restricciones Naturales
-Sin mencionar explícitamente herramientas técnicas o nombres de decoradores en el texto del problema (ej. no decir "Usa `@Param`").
+### Nivel de Guiado Arquitectónico
+Para ejercicios guiados (facil/medio/dificil), nombra explícitamente Módulos, Controladores, Servicios, métodos (ej. `findAll()`) y endpoints. Para el ejercicio final (muy_dificil), describe únicamente los requisitos funcionales y endpoints, sin forzar la arquitectura interna ni los nombres de clases/métodos.
 
 ---
 

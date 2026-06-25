@@ -2,197 +2,205 @@
   {
     "id": 1,
     "title_es": "Tipado de Variables y Análisis de Estado",
-    "title_en": "Variable Typing and State Analysis",
     "difficulty": "facil",
-    "concepts": ["Variables", "Tipos Primitivos", "Tipado Estático"],
+    "concepts": [
+      "Variables",
+      "Tipos Primitivos",
+      "Tipado Estático"
+    ],
     "description_es": "### Contexto Real\nEl sistema de configuración de base de datos extrae variables de entorno, pero se reportan errores porque algunos parámetros numéricos (como puertos) se procesan accidentalmente como texto.\n\n### Problema Actual\nLa función `setupDatabase` no define explícitamente los tipos de sus variables, permitiendo que el compilador pase valores incorrectos a la conexión.\n\n### Comportamiento Esperado\nDeclara explícitamente los tipos de las variables internas `port`, `host` y `isSecure`. Asigna un tipo de número al puerto, texto al host, y un booleano al estado de seguridad. Retorna los valores sin usar el tipo 'any'.\n\n### Casos de Uso\nLectura de configuración en el inicio del servidor.\n\n### Restricciones Naturales\nEl puerto debe ser estrictamente numérico.",
-    "description_en": "### Real Context\nThe database config system extracts env variables but numeric parameters are accidentally processed as strings.\n\n### Current Problem\nThe `setupDatabase` function lacks explicit types.\n\n### Expected Behavior\nExplicitly declare types for `port`, `host` and `isSecure` and return them.",
     "initial_script": "export function setupDatabase() {\n  let port = 5432;\n  let host = 'localhost';\n  let isSecure = true;\n  return { port, host, isSecure };\n}",
     "solution_script": "export function setupDatabase() {\n  let port: number = 5432;\n  let host: string = 'localhost';\n  let isSecure: boolean = true;\n  return { port, host, isSecure };\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const res = setupDatabase(); if (typeof res.port !== 'number' || typeof res.host !== 'string' || typeof res.isSecure !== 'boolean') throw new Error('Los tipos de retorno son incorrectos o no se han respetado los tipos primitivos');"
   },
   {
     "id": 2,
     "title_es": "Generación Dinámica de Logs con Template Strings",
-    "title_en": "Dynamic Log Generation with Template Strings",
     "difficulty": "facil",
-    "concepts": ["Template Strings"],
+    "concepts": [
+      "Template Strings"
+    ],
     "description_es": "### Contexto Real\nEl sistema de monitoreo en la nube necesita registrar el tráfico de red de forma estructurada, pero los logs actuales se construyen concatenando texto, lo que genera errores de formato en producción.\n\n### Problema Actual\nLa función de formateo utiliza concatenación tradicional con `+` y comillas dobles, rompiendo el estándar de logs del sistema cuando hay valores nulos o saltos de línea imprevistos.\n\n### Comportamiento Esperado\nReescribe la función `formatLog` para utilizar plantillas literales. Debe retornar exactamente la cadena: `[ERROR] El usuario admin falló en el módulo auth (Código: 401)` inyectando las variables dinámicamente.\n\n### Casos de Uso\nServicio de registro global de excepciones.",
-    "description_en": "### Real Context\nNetwork monitoring needs structured logs, but current logs use error-prone concatenation.\n\n### Current Problem\nThe formatting function uses traditional concatenation.\n\n### Expected Behavior\nRewrite the function using template literals to return exactly `[ERROR] El usuario admin falló en el módulo auth (Código: 401)`.",
     "initial_script": "export function formatLog(level: string, user: string, module: string, code: number) {\n  return \"[\" + level + \"] El usuario \" + user + \" falló en el módulo \" + module + \" (Código: \" + code + \")\";\n}",
     "solution_script": "export function formatLog(level: string, user: string, module: string, code: number) {\n  return `[${level}] El usuario ${user} falló en el módulo ${module} (Código: ${code})`;\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const log = formatLog('ERROR', 'admin', 'auth', 401); if (log !== '[ERROR] El usuario admin falló en el módulo auth (Código: 401)') throw new Error('El log no coincide con el formato esperado usando template strings');"
   },
   {
     "id": 3,
     "title_es": "Transformación y Filtrado de Arreglos en Memoria",
-    "title_en": "Array Transformation and Filtering in Memory",
     "difficulty": "medio",
-    "concepts": ["Arrays", "Métodos de Array"],
+    "concepts": [
+      "Arrays",
+      "Métodos de Array"
+    ],
     "description_es": "### Contexto Real\nUn endpoint debe retornar una lista de identificadores de correos electrónicos válidos a partir de una lista sucia que contiene entradas vacías y formatos incorrectos.\n\n### Problema Actual\nEl motor procesa iterativamente los arrays con bucles `for` tradicionales, lo cual es lento y difícil de mantener.\n\n### Comportamiento Esperado\nImplementa `processEmails` para que reciba un array de strings. Utiliza operaciones funcionales de array para retornar primero una lista filtrada que contenga únicamente los strings que incluyan el carácter `@`, y luego transforma (mapea) esos resultados para devolverlos completamente en minúsculas.\n\n### Casos de Uso\nSaneamiento de payloads antes de notificaciones masivas.",
-    "description_en": "### Real Context\nAn endpoint needs to return valid email identifiers from a dirty list.\n\n### Current Problem\nThe engine uses traditional for loops.\n\n### Expected Behavior\nUse functional array operations to filter emails containing `@` and map them to lowercase.",
     "initial_script": "export function processEmails(emails: string[]): string[] {\n  return emails;\n}",
     "solution_script": "export function processEmails(emails: string[]): string[] {\n  return emails.filter(e => e.includes('@')).map(e => e.toLowerCase());\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const res = processEmails(['Admin@corp.com', 'invalid', 'TEST@MAIL.COM']); if (res.length !== 2 || res[0] !== 'admin@corp.com' || res[1] !== 'test@mail.com') throw new Error('El filtrado o transformación de arrays falló');"
   },
   {
     "id": 4,
     "title_es": "Mutación Segura de Entidades con Objetos",
-    "title_en": "Safe Entity Mutation with Objects",
     "difficulty": "medio",
-    "concepts": ["Objetos", "Spread Operator"],
+    "concepts": [
+      "Objetos",
+      "Spread Operator"
+    ],
     "description_es": "### Contexto Real\nEl motor de caché necesita actualizar el estado de los perfiles de usuario sin alterar el objeto de origen (para evitar problemas de inmutabilidad en el recolector de basura).\n\n### Problema Actual\nLa función `updateProfile` modifica directamente las propiedades del objeto recibido, corrompiendo las referencias de memoria originales.\n\n### Comportamiento Esperado\nRecrea la función utilizando propagación de propiedades. La función debe tomar un objeto original, sobreescribir la propiedad `status` a `'active'` y retornar una copia estructuralmente nueva sin mutar el parámetro de entrada.\n\n### Casos de Uso\nCapa de actualización de estado.",
-    "description_en": "### Expected Behavior\nRecreate the function using the spread operator to return a new copy with the `status` set to `'active'` without mutating the input.",
     "initial_script": "export function updateProfile(profile: { id: number, status: string }) {\n  profile.status = 'active';\n  return profile;\n}",
     "solution_script": "export function updateProfile(profile: { id: number, status: string }) {\n  return { ...profile, status: 'active' };\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const base = { id: 1, status: 'pending' }; const updated = updateProfile(base); if (base.status !== 'pending' || updated.status !== 'active') throw new Error('El objeto base fue mutado o la copia falló'); if (base === updated) throw new Error('No se retornó una nueva referencia en memoria');"
   },
   {
     "id": 5,
     "title_es": "Contratos Estrictos con Interfaces",
-    "title_en": "Strict Contracts with Interfaces",
     "difficulty": "medio",
-    "concepts": ["Interfaces", "Tipado Estricto", "Tipos Opcionales"],
+    "concepts": [
+      "Interfaces",
+      "Tipado Estricto",
+      "Tipos Opcionales"
+    ],
     "description_es": "### Contexto Real\nEl sistema de facturación rechaza cargas útiles de los clientes porque la capa de middleware no verifica la estructura de la petición antes de enviarla a la base de datos.\n\n### Problema Actual\nLa función recibe datos como `any`, ignorando si los atributos críticos están presentes o mal escritos.\n\n### Comportamiento Esperado\nDefine una interfaz `InvoicePayload`. Debe contener `amount` (numérico obligatorio), `currency` (texto obligatorio), y `discountCode` (texto opcional). Ajusta `validateInvoice` para aceptar este contrato y retornar el monto validado.\n\n### Casos de Uso\nMiddleware de validación de pagos.",
-    "description_en": "### Expected Behavior\nDefine an `InvoicePayload` interface with a mandatory numeric `amount`, a mandatory string `currency`, and an optional string `discountCode`. Adjust the function to use this contract.",
     "initial_script": "export function validateInvoice(payload: any) {\n  return payload.amount;\n}",
     "solution_script": "export interface InvoicePayload {\n  amount: number;\n  currency: string;\n  discountCode?: string;\n}\n\nexport function validateInvoice(payload: InvoicePayload) {\n  return payload.amount;\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const data = { amount: 500, currency: 'USD' }; if (validateInvoice(data) !== 500) throw new Error('El tipado de la interfaz o el retorno fallaron');"
   },
   {
     "id": 6,
     "title_es": "Abstracción Funcional con Clases",
-    "title_en": "Functional Abstraction with Classes",
     "difficulty": "medio",
-    "concepts": ["Clases", "Constructor", "Instanciación"],
+    "concepts": [
+      "Clases",
+      "Constructor",
+      "Instanciación"
+    ],
     "description_es": "### Contexto Real\nEl servicio de autenticación requiere gestionar los tokens de acceso utilizando entidades aisladas, en lugar de manejar los strings sueltos en el código, para asegurar una futura encapsulación.\n\n### Problema Actual\nNo existe una representación estructural de un Token en el dominio.\n\n### Comportamiento Esperado\nImplementa una clase `AuthToken` que reciba en su constructor un string `value` y un número `expiresIn`. Alimenta propiedades públicas con estos valores. Además, crea una función `createToken` que instancie la clase con el valor `'secret'` y `3600` de expiración, y retorne dicha instancia.\n\n### Casos de Uso\nCapa de emisión de JWT.",
-    "description_en": "### Expected Behavior\nImplement an `AuthToken` class initializing public properties via its constructor. Then, implement `createToken` to return an instance with `'secret'` and `3600`.",
     "initial_script": "export function createToken() {\n  return null;\n}",
     "solution_script": "export class AuthToken {\n  public value: string;\n  public expiresIn: number;\n  constructor(value: string, expiresIn: number) {\n    this.value = value;\n    this.expiresIn = expiresIn;\n  }\n}\n\nexport function createToken() {\n  return new AuthToken('secret', 3600);\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const token = createToken(); if (!token || token.value !== 'secret' || token.expiresIn !== 3600 || token.constructor.name !== 'AuthToken') throw new Error('La clase no fue instanciada correctamente o las propiedades fallan');"
   },
   {
     "id": 7,
     "title_es": "Asignación Paramétrica Abreviada (Constructor Simplificado)",
-    "title_en": "Shorthand Parameter Assignment",
     "difficulty": "facil",
-    "concepts": ["Constructor simplificado", "Clases"],
+    "concepts": [
+      "Constructor simplificado",
+      "Clases"
+    ],
     "description_es": "### Contexto Real\nEl equipo técnico determinó que las clases de entidades de base de datos son demasiado verbosas y violan guías de estilo internas, causando archivos inmensamente largos sin justificación.\n\n### Problema Actual\nLa clase de la base de datos declara las propiedades y luego las asigna tediosamente en el cuerpo del constructor.\n\n### Comportamiento Esperado\nReescribe la clase `UserEntity`. Elimina la declaración manual de las propiedades e implementa la sintaxis abreviada de TypeScript directamente en la firma del constructor para declarar las propiedades públicas `id` (número) y `email` (texto).\n\n### Casos de Uso\nORM Entity Mapping.",
-    "description_en": "### Expected Behavior\nRewrite `UserEntity` using TypeScript's shorthand property initialization in the constructor for public properties `id` and `email`.",
     "initial_script": "export class UserEntity {\n  public id: number;\n  public email: string;\n  constructor(id: number, email: string) {\n    this.id = id;\n    this.email = email;\n  }\n}",
     "solution_script": "export class UserEntity {\n  constructor(public id: number, public email: string) {}\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const user = new UserEntity(1, 'test@a.com'); if (user.id !== 1 || user.email !== 'test@a.com') throw new Error('El constructor simplificado falló al asignar las propiedades');"
   },
   {
     "id": 8,
     "title_es": "Protección de Estado Interno con Getters",
-    "title_en": "Internal State Protection with Getters",
     "difficulty": "dificil",
-    "concepts": ["Métodos", "this", "Getters", "Encapsulamiento"],
+    "concepts": [
+      "Métodos",
+      "this",
+      "Getters",
+      "Encapsulamiento"
+    ],
     "description_es": "### Contexto Real\nUn sistema financiero calcula el balance procesando un libro mayor. Otros servicios están corrompiendo el cálculo porque acceden directamente a las transacciones sin que pase por el motor de totalización.\n\n### Problema Actual\nLa clase expone su historial de transacciones públicamente, vulnerando el principio de encapsulamiento.\n\n### Comportamiento Esperado\nCrea la clase `Ledger`. Debe tener un constructor abreviado que reciba una propiedad **privada** llamada `transactions` (un arreglo de números). Implementa un `get` llamado `balance` que procese iterativamente el arreglo privado con un método de array (como `reduce`) y retorne la suma total. \n\n### Casos de Uso\nMotor de validación contable.",
-    "description_en": "### Expected Behavior\nCreate a `Ledger` class with a private array of numbers. Implement a getter called `balance` that sums the transactions and returns the total.",
     "initial_script": "// Escribe tu clase aquí\n",
     "solution_script": "export class Ledger {\n  constructor(private transactions: number[]) {}\n  get balance(): number {\n    return this.transactions.reduce((acc, curr) => acc + curr, 0);\n  }\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const ledger = new Ledger([100, -50, 25]); if (ledger.balance !== 75) throw new Error('El getter no computa correctamente el balance'); const empty = new Ledger([]); if (empty.balance !== 0) throw new Error('El getter no maneja arrays vacíos correctamente');"
   },
   {
     "id": 9,
     "title_es": "Gestión de Configuración Estática",
-    "title_en": "Static Configuration Management",
     "difficulty": "medio",
-    "concepts": ["Métodos estáticos", "Clases"],
+    "concepts": [
+      "Métodos estáticos",
+      "Clases"
+    ],
     "description_es": "### Contexto Real\nEl enrutador de red necesita acceder a constantes globales y funciones de validación HTTP sin tener que instanciar objetos del tipo Config de forma masiva en cada petición.\n\n### Problema Actual\nLa fábrica de configuración HTTP requiere instanciarse, provocando picos de memoria innecesarios.\n\n### Comportamiento Esperado\nDiseña la clase `HttpUtils`. Implementa una propiedad estática pública `TIMEOUT` con un valor numérico de `5000`. Además, implementa un método estático `isSuccess` que reciba un código HTTP numérico y retorne un booleano `true` si se encuentra entre `200` y `299` (inclusivo). Todo esto debe poder usarse sin `new`.\n\n### Casos de Uso\nInterceptores y guards de red.",
-    "description_en": "### Expected Behavior\nDesign an `HttpUtils` class with a static public property `TIMEOUT` (5000) and a static method `isSuccess` that returns true for HTTP codes 200-299.",
     "initial_script": "export class HttpUtils {\n}",
     "solution_script": "export class HttpUtils {\n  static TIMEOUT = 5000;\n  static isSuccess(code: number): boolean {\n    return code >= 200 && code <= 299;\n  }\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "if (HttpUtils.TIMEOUT !== 5000) throw new Error('La propiedad estática TIMEOUT no es accesible o es incorrecta'); if (HttpUtils.isSuccess(201) !== true || HttpUtils.isSuccess(404) !== false) throw new Error('La función estática isSuccess falló la validación');"
   },
   {
     "id": 10,
     "title_es": "Resolución de Entidades Asíncronas",
-    "title_en": "Asynchronous Entity Resolution",
     "difficulty": "medio",
-    "concepts": ["Programación asíncrona", "Async/Await", "Promesas"],
+    "concepts": [
+      "Programación asíncrona",
+      "Async/Await",
+      "Promesas"
+    ],
     "description_es": "### Contexto Real\nEl controlador principal tiene que comunicarse con la base de datos, pero como las respuestas no son inmediatas, está bloqueando el hilo de ejecución Node.js e impactando el rendimiento de otros usuarios.\n\n### Problema Actual\nEl motor de persistencia utiliza retornos síncronos, simulando lecturas de base de datos de manera secuencial e ineficiente.\n\n### Comportamiento Esperado\nImplementa la función `getUserAsync` que emule un retraso de red envolviendo su respuesta en una Promesa nativa. La función debe utilizar firmas asíncronas (`async/await`) y retornar un objeto estático `{ user: 'admin' }` sin importar parámetros adicionales, validando que el retorno asíncrono no interrumpa el main loop.\n\n### Casos de Uso\nControladores y llamadas de inyección de dependencias.",
-    "description_en": "### Expected Behavior\nImplement the function `getUserAsync` using native Promises and async/await signatures. It should return a `{ user: 'admin' }` object resolving asynchronously.",
     "initial_script": "export function getUserAsync() {\n  return { user: 'admin' };\n}",
     "solution_script": "export async function getUserAsync(): Promise<{ user: string }> {\n  return { user: 'admin' };\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const res = getUserAsync(); if (!(res instanceof Promise)) throw new Error('La función no retorna una promesa válida'); res.then(data => { if(data.user !== 'admin') throw new Error('Los datos resueltos son incorrectos'); });"
   },
   {
     "id": 11,
     "title_es": "Desestructuración en Tiempo de Red",
-    "title_en": "Destructuring at Network Time",
     "difficulty": "facil",
-    "concepts": ["Desestructuración"],
+    "concepts": [
+      "Desestructuración"
+    ],
     "description_es": "### Contexto Real\nUn servicio recibe objetos extremadamente grandes en cada petición. El consumo de memoria es alto porque el sistema copia la referencia del payload completo hacia las capas de persistencia en vez de aislar los valores de negocio.\n\n### Problema Actual\nEl código actual usa referencias jerárquicas como `payload.user.email` repitiendo la cadena y perdiendo legibilidad y concisión.\n\n### Comportamiento Esperado\nReescribe la función `extractUserEmail` para que reciba el objeto de payload y retorne su campo `email` utilizando desestructuración explícita de objetos en el cuerpo de la función. El payload tiene la forma `{ id: number, user: { name: string, email: string } }`.\n\n### Casos de Uso\nSanidad en controladores web.",
-    "description_en": "### Expected Behavior\nRewrite `extractUserEmail` to receive a payload and explicitly destructure the `email` from `payload.user` before returning it.",
     "initial_script": "export function extractUserEmail(payload: any) {\n  return payload.user.email;\n}",
     "solution_script": "export function extractUserEmail(payload: { id: number, user: { name: string, email: string } }) {\n  const { user: { email } } = payload;\n  return email;\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const data = { id: 1, user: { name: 'admin', email: 'x@x.com' } }; if (extractUserEmail(data) !== 'x@x.com') throw new Error('El objeto no se desestructuró de la forma esperada');"
   },
   {
     "id": 12,
     "title_es": "Extracción de Metadatos con Decoradores",
-    "title_en": "Metadata Extraction with Decorators",
     "difficulty": "dificil",
-    "concepts": ["Decoradores", "Metaprogramación"],
+    "concepts": [
+      "Decoradores",
+      "Metaprogramación"
+    ],
     "description_es": "### Contexto Real\nLa arquitectura del framework interno requiere marcar de forma declarativa ciertas clases como \"Públicas\" para evadir el motor de autenticación, de la misma forma que NestJS utiliza `@Public()`.\n\n### Problema Actual\nLos desarrolladores insertan booleanos manualmente en todas las rutas, ensuciando la lógica de negocio y dificultando la administración global.\n\n### Comportamiento Esperado\nCrea un decorador de clase `@PublicRoute` utilizando TypeScript. Este decorador es una función que recibe el constructor (`target: Function`). Debe inyectar estáticamente una propiedad `isPublic = true` a la clase decorada. Aplícalo a la clase exportada `AuthController`.\n\n### Casos de Uso\nGuardias globales y Auth Scopes.",
-    "description_en": "### Expected Behavior\nCreate a `@PublicRoute` class decorator that statically injects `isPublic = true` into the decorated class. Apply it to the exported `AuthController` class.",
     "initial_script": "export class AuthController {\n}",
     "solution_script": "export function PublicRoute(target: Function) {\n  target.prototype.isPublic = true;\n  // O estático: (target as any).isPublic = true;\n  // En este contexto, lo agregaremos al prototipo para su lectura en instancias, \n  // pero el requerimiento explícito es 'estáticamente': \n  (target as any).isPublic = true;\n}\n\n@PublicRoute\nexport class AuthController {}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "if ((AuthController as any).isPublic !== true) throw new Error('La clase no fue decorada estáticamente o la propiedad isPublic no existe');"
   },
   {
     "id": 13,
     "title_es": "Seguridad de Tipos en Respuestas HTTP",
-    "title_en": "Type Safety in HTTP Responses",
     "difficulty": "dificil",
-    "concepts": ["Genéricos", "Tipado de Respuestas HTTP", "Axios", "Interfaces"],
+    "concepts": [
+      "Genéricos",
+      "Tipado de Respuestas HTTP",
+      "Axios",
+      "Interfaces"
+    ],
     "description_es": "### Contexto Real\nEl cliente interno de red envía y recibe flujos de datos JSON con microservicios. Como la respuesta nativa es `any`, se han producido caídas en el módulo de pagos al esperar propiedades numéricas y recibir strings.\n\n### Problema Actual\nLa función asíncrona de solicitud de pagos carece de firmas genéricas, forzando un mapeo manual a ciegas.\n\n### Comportamiento Esperado\nDeclara una interfaz `PaymentResponse` que garantice la presencia del campo numérico `status` y del campo de texto `transactionId`. Implementa la función `executePayment<T>` que acepte un genérico y una respuesta mock (en lugar de Axios real) simulando su resolución. Retorna la respuesta fuertemente tipada con la interfaz declarada.\n\n### Casos de Uso\nComunicación B2B con pasarelas de pago y servicios externos.",
-    "description_en": "### Expected Behavior\nDeclare a `PaymentResponse` interface. Implement `executePayment<T>` simulating a resolution of a strongly-typed generic response. Return the mocked data typed as `PaymentResponse`.",
     "initial_script": "export function executePayment() {\n  return { status: 200, transactionId: 'TX123' };\n}",
     "solution_script": "export interface PaymentResponse {\n  status: number;\n  transactionId: string;\n}\n\nexport async function executePayment<T = PaymentResponse>(): Promise<T> {\n  return { status: 200, transactionId: 'TX123' } as unknown as T;\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "(async () => { const res = await executePayment(); if (res.status !== 200 || res.transactionId !== 'TX123') throw new Error('La función no resuelve genéricamente con los tipos correctos'); })();"
   },
   {
     "id": 14,
     "title_es": "Desacoplamiento Funcional e Inversión de Control",
-    "title_en": "Functional Decoupling and Inversion of Control",
     "difficulty": "muy_dificil",
-    "concepts": ["Inyección de dependencias", "Principio de Sustitución de Liskov", "Interfaces", "Integración"],
+    "concepts": [
+      "Inyección de dependencias",
+      "Principio de Sustitución de Liskov",
+      "Interfaces",
+      "Integración"
+    ],
     "description_es": "### Contexto Real\nEl motor de almacenamiento de una plataforma multitenant escribe logs directamente en el disco. El equipo de arquitectura exige migrar estos registros a un sistema en la nube, pero el acoplamiento rígido de las clases imposibilita esta acción sin quebrar toda la plataforma.\n\n### Problema Actual\nLa clase `AppService` instancia directamente un logger específico de archivo, violando la regla L (Sustitución de Liskov) y de Inversión de Dependencias (D) de SOLID.\n\n### Comportamiento Esperado\nImplementa el patrón de Inyección de Dependencias. Define una interfaz `LoggerContract` con un método `log(msg: string): void`. Crea una clase `CloudLogger` que la implemente.\nModifica la clase `AppService` para que nunca inicialice instanciaciones locales; en su lugar, debe requerir `LoggerContract` en su constructor abreviado.\nInstancia externamente un `CloudLogger` e inyéctalo manualmente al construir `AppService` (creando una función `bootstrap()` que retorne la instancia de la aplicación configurada).\n\n### Casos de Uso\nCimientos teóricos de la estructura Modular y Proveedores en NestJS.",
-    "description_en": "### Expected Behavior\nImplement Dependency Injection. Define a `LoggerContract` interface. Create a `CloudLogger` class implementing it. Refactor `AppService` to inject `LoggerContract` via constructor. Create `bootstrap()` to manually assemble and return the instance.",
     "initial_script": "class FileLogger {\n  log(msg: string) { console.log(msg); }\n}\n\nexport class AppService {\n  private logger = new FileLogger();\n  doTask() { this.logger.log('Done'); }\n}",
     "solution_script": "export interface LoggerContract {\n  log(msg: string): void;\n}\n\nexport class CloudLogger implements LoggerContract {\n  log(msg: string) { /* envia a nube */ }\n}\n\nexport class AppService {\n  constructor(private readonly logger: LoggerContract) {}\n  doTask() { this.logger.log('Done'); }\n}\n\nexport function bootstrap() {\n  const logger = new CloudLogger();\n  return new AppService(logger);\n}",
     "hints_es": [],
-    "hints_en": [],
     "test_script": "const app = bootstrap(); if (!app || typeof app.doTask !== 'function') throw new Error('El ensamblaje DI falló o doTask no está definido'); try { app.doTask(); } catch(e) { throw new Error('La invocación del método delegado a la dependencia inyectada lanzó un error inesperado'); }"
   }
 ]

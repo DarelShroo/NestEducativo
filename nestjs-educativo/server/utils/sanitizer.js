@@ -127,9 +127,9 @@ function sanitizeTypeScript(script) {
  * @returns {boolean}
  */
 function validateExerciseId(nivel, id) {
-  // Nivel should be 1, 2, 3 or 4
+  // Nivel should be 1, 2, 3, 4 or 5
   const nivelNum = parseInt(nivel);
-  if (isNaN(nivelNum) || nivelNum < 1 || nivelNum > 4) {
+  if (isNaN(nivelNum) || nivelNum < 1 || nivelNum > 5) {
     return false;
   }
 
@@ -140,7 +140,7 @@ function validateExerciseId(nivel, id) {
   }
 
   // Check max exercises per level
-  const maxExercises = { 1: 30, 2: 40, 3: 30, 4: 30 };
+  const maxExercises = { 1: 30, 2: 40, 3: 30, 4: 30, 5: 30 };
   if (idNum > maxExercises[nivelNum]) {
     return false;
   }

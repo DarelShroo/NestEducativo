@@ -1,0 +1,261 @@
+[
+  {
+    "id": 1,
+    "title_es": "Aislamiento de API y Servidor Estático",
+    "difficulty": "facil",
+    "concepts": [
+      "ServeStaticModule",
+      "setGlobalPrefix"
+    ],
+    "description_es": "### Contexto Real\nEl frontend envía requests a la ruta raíz `/` que chocan con la carga de assets estáticos de React.\n\n### Problema Actual\nFalta aislar la API bajo un prefijo y exponer la carpeta `public` para archivos estáticos.\n\n### Comportamiento Esperado\nEdita `main.ts` añadiendo `app.setGlobalPrefix('api/v1')`. Edita `AppModule` configurando `ServeStaticModule.forRoot({ rootPath: join(__dirname, '..', 'public') })`.\n\n### Casos de Uso\nServir `/api/v1/users` (backend) y `/index.html` (frontend) simultáneamente.",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/serve-static\": \"^4.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\"\n  }\n}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n\n@Module({\n  imports: [],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  app.setGlobalPrefix('api/v1');\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { ServeStaticModule } from '@nestjs/serve-static';\nimport { join } from 'path';\n\n@Module({\n  imports: [\n    ServeStaticModule.forRoot({\n      rootPath: join(__dirname, '..', 'public'),\n    }),\n  ],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { const main = fs.readFileSync('./src/main.ts', 'utf8'); if (!main.includes(\"setGlobalPrefix('api/v1')\") && !main.includes('setGlobalPrefix(\"api/v1\")')) throw new Error('Global prefix no configurado correctamente'); const app = fs.readFileSync('./src/app.module.ts', 'utf8'); if (!app.includes('ServeStaticModule.forRoot')) throw new Error('ServeStaticModule no importado o configurado'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 2,
+    "title_es": "Integración del Pool de Conexiones",
+    "difficulty": "facil",
+    "concepts": [
+      "MongooseModule"
+    ],
+    "description_es": "### Contexto Real\nEl backend requiere persistencia en un clúster de MongoDB local.\n\n### Problema Actual\nNo hay conexión a la base de datos configurada en el módulo raíz.\n\n### Comportamiento Esperado\nEn `AppModule`, importa e inyecta `MongooseModule.forRoot('mongodb://localhost:27017/nest-db')`.\n\n### Casos de Uso\nInicialización del motor de persistencia en el bootstrap de la aplicación.",
+    "files": [
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/mongoose\": \"^10.0.0\",\n    \"mongoose\": \"^8.0.0\"\n  }\n}"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n\n@Module({\n  imports: [],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { MongooseModule } from '@nestjs/mongoose';\n\n@Module({\n  imports: [\n    MongooseModule.forRoot('mongodb://localhost:27017/nest-db'),\n  ],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { const app = fs.readFileSync('./src/app.module.ts', 'utf8'); if (!app.includes('MongooseModule.forRoot') || !app.includes('mongodb://localhost:27017/nest-db')) throw new Error('MongooseModule no configurado correctamente en el AppModule'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 3,
+    "title_es": "Definición de Topología de Datos (Esquemas)",
+    "difficulty": "medio",
+    "concepts": [
+      "@Schema()",
+      "@Prop()",
+      "SchemaFactory"
+    ],
+    "description_es": "### Contexto Real\nSe necesita definir la estructura de datos de usuarios para que Mongoose pueda mapearla como colección en MongoDB.\n\n### Problema Actual\nNo existe ningún esquema de datos en el proyecto. La persistencia no puede funcionar sin un schema ODM.\n\n### Comportamiento Esperado\nCrea el archivo `src/users/schemas/user.schema.ts`. Define la clase `User` decorada con `@Schema()`. Añade la propiedad `email` decorada con `@Prop({ unique: true, index: true, required: true })`. Exporta `UserSchema` usando `SchemaFactory.createForClass(User)`.\n\n### Casos de Uso\nCreación del mapping objeto-documento (ODM) con restricciones de unicidad en el campo email.",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"@nestjs/mongoose\": \"^10.0.0\",\n    \"mongoose\": \"^8.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\"\n  }\n}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n\n@Module({\n  imports: [],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/users/schemas/user.schema.ts",
+        "content": "import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';\n\n@Schema()\nexport class User {\n  @Prop({ unique: true, index: true, required: true })\n  email: string;\n}\n\nexport const UserSchema = SchemaFactory.createForClass(User);\n"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { const schema = fs.readFileSync('./src/users/schemas/user.schema.ts', 'utf8'); if (!schema.includes('@Schema(')) throw new Error('Falta el decorador @Schema'); if (!schema.includes('@Prop(') || !schema.includes('unique: true') || !schema.includes('index: true')) throw new Error('Propiedad email no configurada con índices y unicidad'); if (!schema.includes('SchemaFactory.createForClass(User)')) throw new Error('No se ha exportado el UserSchema'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 4,
+    "title_es": "Operaciones Avanzadas y Códigos HTTP",
+    "difficulty": "medio",
+    "concepts": [
+      "deleteMany",
+      "deletedCount",
+      "updateOne",
+      "HttpCode"
+    ],
+    "description_es": "### Contexto Real\nSe necesita una funcionalidad de limpieza masiva de cuentas inactivas con un código de estado HTTP específico.\n\n### Problema Actual\nNo existe ningún módulo de usuarios en el proyecto. Se necesita crear toda la estructura desde cero.\n\n### Comportamiento Esperado\n1. Crea `src/users/schemas/user.schema.ts` con la clase `User` (propiedades: `name`, `status`) decorada con `@Schema()` y exportando `UserSchema`.\n2. Crea `src/users/users.service.ts` con `UsersService`. Inyecta el modelo `User` usando `@InjectModel(User.name)`. Implementa el método `deleteInactive()` que ejecute `this.userModel.deleteMany({ status: 'inactive' })` y devuelva `{ eliminados: resultado.deletedCount }`.\n3. Crea `src/users/users.controller.ts` con `UsersController` bajo la ruta `users`. Implementa el endpoint `DELETE /users/inactive` que llame a `deleteInactive()` y fuerza el código HTTP `204` usando `@HttpCode(HttpStatus.NO_CONTENT)`.\n\n### Casos de Uso\n`DELETE /users/inactive` -> 204 No Content",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"@nestjs/mongoose\": \"^10.0.0\",\n    \"mongoose\": \"^8.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\"\n  }\n}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n\n@Module({\n  imports: [],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/users/users.service.ts",
+        "content": "import { Injectable } from '@nestjs/common';\nimport { InjectModel } from '@nestjs/mongoose';\nimport { Model } from 'mongoose';\nimport { User } from './schemas/user.schema';\n\n@Injectable()\nexport class UsersService {\n  constructor(@InjectModel(User.name) private userModel: Model<User>) {}\n  async deleteInactive() {\n    const result = await this.userModel.deleteMany({ status: 'inactive' });\n    return { eliminados: result.deletedCount };\n  }\n}\n"
+      },
+      {
+        "path": "src/users/users.controller.ts",
+        "content": "import { Controller, Delete, HttpCode, HttpStatus } from '@nestjs/common';\nimport { UsersService } from './users.service';\n\n@Controller('users')\nexport class UsersController {\n  constructor(private readonly usersService: UsersService) {}\n  @Delete('inactive')\n  @HttpCode(HttpStatus.NO_CONTENT)\n  deleteInactive() {\n    return this.usersService.deleteInactive();\n  }\n}\n"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { const svc = fs.readFileSync('./src/users/users.service.ts', 'utf8'); if (!svc.includes('deleteMany')) throw new Error('Servicio no usa deleteMany'); if (!svc.includes('deletedCount')) throw new Error('No se retorna el deletedCount'); const ctrl = fs.readFileSync('./src/users/users.controller.ts', 'utf8'); if (!ctrl.includes('@HttpCode(204)') && !ctrl.includes('HttpStatus.NO_CONTENT')) throw new Error('Controlador no fuerza el HttpCode a 204'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 5,
+    "title_es": "Control Restrictivo de Inserción (Manejo de Errores)",
+    "difficulty": "dificil",
+    "concepts": [
+      "Manejo de Errores",
+      "BadRequestException",
+      "Error 11000"
+    ],
+    "description_es": "### Contexto Real\nSe necesita un servicio de creación de usuarios que maneje correctamente las colisiones por email duplicado en MongoDB.\n\n### Problema Actual\nEl proyecto no tiene ningún servicio de usuarios. Se debe crear uno desde cero que gestione errores de persistencia.\n\n### Comportamiento Esperado\n1. Crea `src/users/schemas/user.schema.ts` con la clase `User` decorada con `@Schema()`. La propiedad `email` debe tener `@Prop({ unique: true })`.\n2. Crea `src/users/users.service.ts` con `UsersService`. Inyecta el modelo con `@InjectModel(User.name)`. Implementa el método `create(createDto)` que envuelva `this.userModel.create(createDto)` en un bloque try-catch. Si el error tiene código `11000`, lanza `BadRequestException(\"Registro duplicado\")`. En caso contrario, propaga `InternalServerErrorException`.\n\n### Casos de Uso\n`POST /users` con email duplicado -> HTTP 400 Bad Request.",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"@nestjs/mongoose\": \"^10.0.0\",\n    \"mongoose\": \"^8.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\"\n  }\n}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n\n@Module({\n  imports: [],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/users/users.service.ts",
+        "content": "import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';\nimport { InjectModel } from '@nestjs/mongoose';\nimport { Model } from 'mongoose';\nimport { User } from './schemas/user.schema';\n\n@Injectable()\nexport class UsersService {\n  constructor(@InjectModel(User.name) private userModel: Model<User>) {}\n\n  async create(createDto: any) {\n    try {\n      return await this.userModel.create(createDto);\n    } catch (error: any) {\n      if (error.code === 11000) {\n        throw new BadRequestException('El registro ya existe');\n      }\n      throw new InternalServerErrorException('Error inesperado');\n    }\n  }\n}\n"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { const service = fs.readFileSync('./src/users/users.service.ts', 'utf8'); if (!service.includes('try') || !service.includes('catch')) throw new Error('No hay bloque try-catch'); if (!service.includes('11000') || !service.includes('BadRequestException')) throw new Error('No se está manejando el error 11000 correctamente'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 6,
+    "title_es": "Validación de ObjectId con Pipe Personalizado",
+    "difficulty": "dificil",
+    "concepts": [
+      "Pipes",
+      "isValidObjectId"
+    ],
+    "description_es": "### Contexto Real\nLos endpoints que reciben IDs de MongoDB como parámetro de ruta lanzan errores 500 si el formato del ID no es un ObjectId hexadecimal válido de 24 caracteres.\n\n### Problema Actual\nNo existe ningún mecanismo de validación preventiva de IDs en el proyecto.\n\n### Comportamiento Esperado\nCrea el archivo `src/common/pipes/mongo-id.pipe.ts` con la clase `MongoIdPipe` que implemente `PipeTransform`. En el método `transform(value)`, importa `isValidObjectId` de `mongoose` y valida el valor recibido. Si no es un ObjectId válido, lanza `BadRequestException('Formato de ID inválido')`. Si es válido, retorna el valor sin modificaciones.\n\n### Casos de Uso\n`GET /users/123` -> Error 400 Bad Request preventivo (ID inválido).\n`GET /users/507f1f77bcf86cd799439011` -> Pasa la validación (ID válido).",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"@nestjs/mongoose\": \"^10.0.0\",\n    \"mongoose\": \"^8.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\"\n  }\n}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\n\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();\n"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n\n@Module({\n  imports: [],\n})\nexport class AppModule {}\n"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/common/pipes/mongo-id.pipe.ts",
+        "content": "import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';\nimport { isValidObjectId } from 'mongoose';\n\n@Injectable()\nexport class MongoIdPipe implements PipeTransform {\n  transform(value: any, metadata: ArgumentMetadata) {\n    if (!isValidObjectId(value)) {\n      throw new BadRequestException('Formato de ID inválido');\n    }\n    return value;\n  }\n}\n"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { const pipe = fs.readFileSync('./src/common/pipes/mongo-id.pipe.ts', 'utf8'); if (!pipe.includes('isValidObjectId')) throw new Error('No se está usando isValidObjectId'); if (!pipe.includes('BadRequestException')) throw new Error('No se lanza excepcion al fallar validación'); console.log('Test pasado correctamente'); } test();"
+  },
+  {
+    "id": 7,
+    "title_es": "Sistema de Gestión de Inventario Hospitalario",
+    "difficulty": "muy_dificil",
+    "concepts": [
+      "MongooseModule",
+      "@Schema()",
+      "CRUD completo",
+      "Error 11000",
+      "Pipes",
+      "deleteMany"
+    ],
+    "description_es": "### Contexto Real\nSistema de gestión de inventario de equipos médicos en el economato central de un complejo hospitalario. El sistema debe rastrear el ingreso, estado y baja de cada equipo crítico de forma segura.\n\n### Problema Actual\nNo existe el sistema. El hospital necesita una API REST completa para persistir y administrar los registros de equipamiento hospitalario sin fisuras ni fallos arquitectónicos.\n\n### Comportamiento Esperado\nDesarrolla el recurso de equipos (`equipments`) integrando completamente Mongoose. \n- **Persistencia**: Schema con una propiedad `serialNumber` que debe ser única y requerida.\n- **Alta de equipos**: Endpoint para registrar. Garantiza respuesta HTTP 201. Protege el sistema contra colisiones (Error 11000) atrapándolo preventivamente y emitiendo `BadRequestException`.\n- **Consulta Segura**: Endpoints de lectura (todos y por ID). La búsqueda por ID debe protegerse con un Pipe personalizado que detenga IDs inválidos de Mongoose antes de procesarse.\n- **Actualización**: Modificación de atributos de un equipo existente.\n- **Baja y Limpieza en Lote**: Endpoint para eliminar un equipo individual. Endpoint adicional para ejecutar un borrado masivo de equipos catalogados como defectuosos (`deleteMany`), el cual debe retornar explícitamente código HTTP 204 (No Content) y omitir envío de datos. Todas estas operaciones deben conectarse a una base de datos local en la raíz del proyecto.\n\n### Casos de Uso\nControl integral y resiliente del almacén clínico mediante arquitectura backend completa.",
+    "files": [
+      {
+        "path": "package.json",
+        "content": "{\n  \"name\": \"nest-project\",\n  \"version\": \"0.0.1\",\n  \"private\": true,\n  \"dependencies\": {\n    \"@nestjs/common\": \"^10.0.0\",\n    \"@nestjs/core\": \"^10.0.0\",\n    \"@nestjs/platform-express\": \"^10.0.0\",\n    \"@nestjs/mongoose\": \"^10.0.0\",\n    \"mongoose\": \"^8.0.0\",\n    \"reflect-metadata\": \"^0.2.0\",\n    \"rxjs\": \"^7.8.1\"\n  }\n}"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\n@Module({ imports: [] })\nexport class AppModule {}"
+      },
+      {
+        "path": "src/main.ts",
+        "content": "import { NestFactory } from '@nestjs/core';\nimport { AppModule } from './app.module';\nasync function bootstrap() {\n  const app = await NestFactory.create(AppModule);\n  await app.listen(3000);\n}\nbootstrap();"
+      }
+    ],
+    "solution_files": [
+      {
+        "path": "src/equipments/schemas/equipment.schema.ts",
+        "content": "import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';\n@Schema()\nexport class Equipment {\n  @Prop({ unique: true, required: true })\n  serialNumber: string;\n  @Prop()\n  status: string;\n}\nexport const EquipmentSchema = SchemaFactory.createForClass(Equipment);"
+      },
+      {
+        "path": "src/equipments/equipments.service.ts",
+        "content": "import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';\nimport { InjectModel } from '@nestjs/mongoose';\nimport { Model } from 'mongoose';\nimport { Equipment } from './schemas/equipment.schema';\n@Injectable()\nexport class EquipmentsService {\n  constructor(@InjectModel(Equipment.name) private model: Model<Equipment>) {}\n  async create(dto: any) {\n    try {\n      return await this.model.create(dto);\n    } catch(e: any) {\n      if (e.code === 11000) throw new BadRequestException('Duplicado');\n      throw new InternalServerErrorException();\n    }\n  }\n  async findAll() { return this.model.find(); }\n  async findOne(id: string) { return this.model.findById(id); }\n  async update(id: string, dto: any) { return this.model.updateOne({ _id: id }, dto); }\n  async remove(id: string) { return this.model.deleteOne({ _id: id }); }\n  async removeDefective() { return this.model.deleteMany({ status: 'defectuoso' }); }\n}\n"
+      },
+      {
+        "path": "src/equipments/equipments.controller.ts",
+        "content": "import { Controller, Post, Get, Put, Delete, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';\nimport { EquipmentsService } from './equipments.service';\nimport { MongoIdPipe } from '../common/pipes/mongo-id.pipe';\n@Controller('equipments')\nexport class EquipmentsController {\n  constructor(private readonly service: EquipmentsService) {}\n  @Post()\n  @HttpCode(HttpStatus.CREATED)\n  create(@Body() dto: any) { return this.service.create(dto); }\n  @Get()\n  findAll() { return this.service.findAll(); }\n  @Get(':id')\n  findOne(@Param('id', MongoIdPipe) id: string) { return this.service.findOne(id); }\n  @Put(':id')\n  update(@Param('id', MongoIdPipe) id: string, @Body() dto: any) { return this.service.update(id, dto); }\n  @Delete('defective')\n  @HttpCode(HttpStatus.NO_CONTENT)\n  removeDefective() { return this.service.removeDefective(); }\n  @Delete(':id')\n  remove(@Param('id', MongoIdPipe) id: string) { return this.service.remove(id); }\n}\n"
+      },
+      {
+        "path": "src/common/pipes/mongo-id.pipe.ts",
+        "content": "import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';\nimport { isValidObjectId } from 'mongoose';\n@Injectable()\nexport class MongoIdPipe implements PipeTransform {\n  transform(value: any) {\n    if(!isValidObjectId(value)) throw new BadRequestException();\n    return value;\n  }\n}"
+      },
+      {
+        "path": "src/app.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { MongooseModule } from '@nestjs/mongoose';\nimport { EquipmentsModule } from './equipments/equipments.module';\n@Module({\n  imports: [MongooseModule.forRoot('mongodb://localhost:27017/hospital'), EquipmentsModule]\n})\nexport class AppModule {}"
+      },
+      {
+        "path": "src/equipments/equipments.module.ts",
+        "content": "import { Module } from '@nestjs/common';\nimport { MongooseModule } from '@nestjs/mongoose';\nimport { EquipmentsController } from './equipments.controller';\nimport { EquipmentsService } from './equipments.service';\nimport { Equipment, EquipmentSchema } from './schemas/equipment.schema';\n@Module({\n  imports: [MongooseModule.forFeature([{ name: Equipment.name, schema: EquipmentSchema }])],\n  controllers: [EquipmentsController],\n  providers: [EquipmentsService]\n})\nexport class EquipmentsModule {}"
+      }
+    ],
+    "hints_es": [],
+    "test_script": "import * as fs from 'fs'; function test() { try { const schema = fs.readFileSync('./src/equipments/schemas/equipment.schema.ts', 'utf8'); if(!schema.includes('unique')) throw new Error('Esquema inválido'); const svc = fs.readFileSync('./src/equipments/equipments.service.ts', 'utf8'); if(!svc.includes('11000') || !svc.includes('deleteMany')) throw new Error('Faltan manejos de errores o eliminaciones masivas'); const ctrl = fs.readFileSync('./src/equipments/equipments.controller.ts', 'utf8'); if(!ctrl.includes('MongoIdPipe') || !ctrl.includes('HttpCode')) throw new Error('Validación o códigos HTTP incorrectos'); const pipe = fs.readFileSync('./src/common/pipes/mongo-id.pipe.ts', 'utf8'); if(!pipe.includes('isValidObjectId')) throw new Error('Pipe incorrecto'); console.log('Test pasado correctamente'); } catch(e) { throw new Error('No se cumple con la estructura arquitectónica o de validación esperada'); } } test();"
+  }
+]
